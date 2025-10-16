@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .weather { display: none; } 
+    .controls { display:flex; gap:8px; align-items:center; }
+    .loc-btn { padding:4px 4px; cursor:pointer; border-radius:6px; border:1px solid #ccc; background:#f7f7f7; }
+    .loader { display:none; }
+  </style>
+  
+</head>
+<body>
+  <div class="card">
+    <div class="search controls">
+      <input type="text" placeholder="Enter the City name" spellcheck="false" />
+      <div class="current-location">
+      <button>
+        <img src="images/search.png" alt="Search" />
+      </button>
+      <button class="loc-btn" id="locBtn">
+        <img src="images/location.jpg" alt="" style="border-radius: 50%; width: 60px; height: 60px; position: relative; left: -4px; top: -4px;">
+      </button>
+      </div>
+
+      <span class="loader" id="loader">Loading...</span>
+    </div>
+
+    <div class="weather">
+      <img src="images/rain.png" alt="" class="weather-icon" />
+      <h1 class="temp">22°C</h1>
+      <h2 class="city">New Delhi</h2>
+
+      <div class="details">
+        <div class="col">
+          <img src="images/humidity.png" alt="" />
+          <div>
+            <p class="humidity">50%</p>
+            <p>Humidity</p>
+          </div>
+        </div>
+
+        <div class="col">
+          <img src="images/wind.png" alt="" />
+          <div>
+            <p class="wind">15 km/hr</p>
+            <p>Wind Speed</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = "77a53bb2c286cc52882a036059976f35"; 
+    const apiBase = "https://api.openweathermap.org/data/2.5/weather";
+
+    const searchBox = document.querySelector(".search input");
+    const searchBtn = document.querySelector(".search button");
+    const locBtn = document.getElementById("locBtn");
+    const loader = document.getElementById("loader");
+    const weatherIcon = document.querySelector(".weather-icon");
+    const weatherBlock = document.querySelector(".weather");
+
+    function showLoader(on = true) {
+      loader.style.display = on ? "inline" : "none";
+    }
+
+    async function fetchWeatherUrl(url) {
+      try {
+        showLoader(true);
+        const response = await fetch(url);
+
+        
+        if (response.status === 401) {
+          alert("Invalid API key. Check your OpenWeather API key.");
+          showLoader(false);
+          return null;
+        }
+        if (response.status === 404) {
+          alert("City not found. Please check spelling.");
+          showLoader(false);
+          return null;
+        }
+        if (!response.ok) {
+          alert("Error fetching weather data. Status: " + response.status);
+          showLoader(false);
+          return null;
+        }
+
+        const data = await response.json();
+        showLoader(false);
+        return data;
+      } catch (err) {
+        console.error(err);
+        showLoader(false);
+        alert("Network error. Check your connection or CORS settings.");
+        return null;
+      }
+    }
+
+    
+    async function checkWeather(city) {
+      if (!city || city.trim() === "") {
+        alert("Please enter a city name.");
+        return;
+      }
+
+      if (typeof city !== "string" || !/^[a-zA-Z\s]+$/.test(city)) {
+        alert("City name should only contain letters (no numbers or symbols).");
+        return;
+      }
+
+      const q = encodeURIComponent(city.trim());
+      const url = `${apiBase}?q=${q}&units=metric&appid=${apiKey}`;
+      const data = await fetchWeatherUrl(url);
+      if (data) updateUI(data);
+    }
+
+    // Use latitude & longitude
+    async function getWeatherByCoords(lat, lon) {
+      const url = `${apiBase}?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+      const data = await fetchWeatherUrl(url);
+      if (data) updateUI(data);
+    }
+
+    // Update the UI from API response
+    function updateUI(data) {
+      console.log(data);
+      document.querySelector(".city").textContent = data.name;
+      document.querySelector(".temp").textContent = Math.round(data.main.temp) + "°C";
+      document.querySelector(".humidity").textContent = data.main.humidity + "%";
+      document.querySelector(".wind").textContent = data.wind.speed + " km/h";
+
+
+      const main = data.weather && data.weather[0] && data.weather[0].main ? data.weather[0].main : "";
+      switch (main) {
+        case "Clouds":
+          weatherIcon.src = "images/clouds.png";
+          break;
+        case "Rain":
+          weatherIcon.src = "images/rain.png";
+          break;
+        case "Drizzle":
+          weatherIcon.src = "images/drizzle.png";
+          break;
+        case "Mist":
+        case "Haze":
+        case "Fog":
+          weatherIcon.src = "images/mist.png";
+          break;
+        case "Clear":
+          weatherIcon.src = "images/clear.png";
+          break;
+        case "Snow":
+          weatherIcon.src = "images/snow.png";
+          break;
+        default:
+          weatherIcon.src = "images/default.png";
+      }
+
+      weatherBlock.style.display = "block";
+    }
+
+    searchBtn.addEventListener("click", () => {
+      checkWeather(searchBox.value);
+    });
+
+    searchBox.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkWeather(searchBox.value);
+    });
+
+    // Location button handler
+    locBtn.addEventListener("click", () => {
+      if (!("geolocation" in navigator)) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      // Optional: ask permission status first (not supported in all browsers)
+      // navigator.permissions?.query({ name: 'geolocation' }).then(result => { ... });
+
+      // Request current position (with timeout & highAccuracy options)
+      showLoader(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          showLoader(false);
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          // Fetch weather by coordinates
+          getWeatherByCoords(lat, lon);
+        },
+        (error) => {
+          showLoader(false);
+          console.error("Geolocation error:", error);
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              alert("Location permission denied. You can still search manually.");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              alert("Position unavailable. Try again or use the search box.");
+              break;
+            case error.TIMEOUT:
+              alert("Location request timed out. Try again.");
+              break;
+            default:
+              alert("Error getting location: " + error.message);
+          }
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    });
+
+    // automatically prompt once on page load 
+     window.addEventListener('load', () => {
+           locBtn.click(); 
+     });
+  </script>
+</body>
+</html>

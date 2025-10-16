@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="card">
+    <div class="search">
+      <input type="text" placeholder="Enter the City name" spellcheck="false" />
+      <button><img src="images/search.png" alt="Search" /></button>
+    </div>
+
+    <div class="weather">
+      <img src="images/rain.png" alt="" class="weather-icon" />
+      <h1 class="temp">22°C</h1>
+      <h2 class="city">New Delhi</h2>
+
+      <div class="details">
+        <div class="col">
+          <img src="images/humidity.png" alt="" />
+          <div>
+            <p class="humidity">50%</p>
+            <p>Humidity</p>
+          </div>
+        </div>
+
+        <div class="col">
+          <img src="images/wind.png" alt="" />
+          <div>
+            <p class="wind">15 km/hr</p>
+            <p>Wind Speed</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = "77a53bb2c286cc52882a036059976f35"; 
+    const apiBase = "https://api.openweathermap.org/data/2.5/weather";
+
+    const searchBox = document.querySelector(".search input");
+    const searchBtn = document.querySelector(".search button");
+    const weatherIcon = document.querySelector(".weather-icon");
+
+    async function checkWeather(city) {
+      if (!city || city.trim() === "") {
+        alert("Please enter a city name.");
+        return;
+      }
+
+      if (typeof city !== "string" || !/^[a-zA-Z\s]+$/.test(city)) {
+        alert("City name should only contain letters (no numbers or symbols).");
+        return;
+      }
+
+      const q = encodeURIComponent(city.trim());
+      const url = `${apiBase}?q=${q}&units=metric&appid=${apiKey}`;
+
+      try {
+        const response = await fetch(url);
+
+        if (response.status === 401) {
+          alert("Invalid API key. Check your OpenWeather API key.");
+          return;
+        }
+        if (response.status === 404) {
+          alert("City not found. Please check spelling.");
+          return;
+        }
+        if (!response.ok) {
+          alert("Error fetching weather data. Status: " + response.status);
+          return;
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        // Update UI
+        document.querySelector(".city").textContent = data.name;
+        document.querySelector(".temp").textContent = Math.round(data.main.temp) + "°C";
+        document.querySelector(".humidity").textContent = data.main.humidity + "%";
+        document.querySelector(".wind").textContent = data.wind.speed + " km/h";
+
+        switch (data.weather[0].main) {
+          case "Clouds":
+             weatherIcon.src = "images/clouds.png";
+             break;
+          case "Rain":
+             weatherIcon.src = "images/rain.png";
+             break;
+          case "Drizzle":
+             weatherIcon.src = "images/drizzle.png";
+             break;
+          case "Mist":
+          case "Haze":
+          case "Fog":
+             weatherIcon.src = "images/mist.png";
+             break;
+          case "Clear":
+             weatherIcon.src = "images/clear.png";
+             break;
+          case "Snow":
+             weatherIcon.src = "images/snow.png";
+             break;
+          default:
+             weatherIcon.src = "images/default.png"; 
+         }
+
+
+         document.querySelector(".weather").style.display = "block";
+
+
+      } catch (err) {
+        console.error(err);
+        alert("Network error. Check your connection or CORS settings in the browser.");
+      }
+    }
+
+
+    searchBtn.addEventListener("click", () => {
+      checkWeather(searchBox.value);
+    });
+
+    // allow Enter key to trigger search
+    searchBox.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        checkWeather(searchBox.value);
+      }
+    });
+
+  </script>
+</body>
+</html>
