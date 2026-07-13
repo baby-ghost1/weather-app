@@ -1,59 +1,79 @@
 import { useState } from "react";
-import { FiGitBranch } from "react-icons/fi";
-import { getWeatherByCity } from "../services/api";
+import { FiGitBranch, FiDroplet, FiWind } from "react-icons/fi";
+import { getWeatherByCity, getAirQuality } from "../services/api";
 import { useUnit } from "../context/UnitContext";
-import { WiDaySunny, WiCloud, WiRain, WiSnow, WiDayHaze, WiThunderstorm } from "react-icons/wi";
-
-const iconMap = { Clear: WiDaySunny, Clouds: WiCloud, Rain: WiRain, Drizzle: WiRain, Snow: WiSnow, Thunderstorm: WiThunderstorm, Haze: WiDayHaze };
-const iconColors = { Clear: "text-yellow-300", Clouds: "text-gray-200", Rain: "text-blue-300", Drizzle: "text-blue-200", Snow: "text-white", Thunderstorm: "text-yellow-400" };
-
-const WeatherIcon = ({ main, size = "text-4xl" }) => {
-  const key = ["Mist", "Haze", "Fog"].includes(main) ? "Haze" : main;
-  const Icon = iconMap[key] || WiDaySunny;
-  return <Icon className={`${size} ${iconColors[key] || "text-yellow-300"}`} />;
-};
+import WeatherIcon from "./WeatherIcon";
 
 const CityCompare = ({ currentWeather }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [city, setCity] = useState("");
   const [data, setData] = useState(null);
+  const [currentAqi, setCurrentAqi] = useState(null);
+  const [compareAqi, setCompareAqi] = useState(null);
   const { units, tempUnit, speedUnit } = useUnit();
 
   if (!currentWeather) return null;
 
-  const handleCompare = async () => {
-    if (!city.trim()) return;
-    try { const res = await getWeatherByCity(city, units); if (res.success) setData(res.data); } catch { setData(null); }
+  const openCompare = async () => {
+    setIsOpen(true);
+    try {
+      const res = await getAirQuality(currentWeather.lat, currentWeather.lon);
+      if (res.success) setCurrentAqi(res.data);
+    } catch {}
   };
 
-  const close = () => { setIsOpen(false); setData(null); setCity(""); };
+  const handleCompare = async () => {
+    if (!city.trim()) return;
+    try {
+      const weatherRes = await getWeatherByCity(city, units);
+      if (weatherRes.success) {
+        setData(weatherRes.data);
+        try {
+          const aqRes = await getAirQuality(weatherRes.data.lat, weatherRes.data.lon);
+          if (aqRes.success) setCompareAqi(aqRes.data);
+        } catch {}
+      }
+    } catch {
+      setData(null);
+      setCompareAqi(null);
+    }
+  };
 
-  const WeatherBox = ({ title, w }) => (
+  const close = () => { setIsOpen(false); setData(null); setCurrentAqi(null); setCompareAqi(null); setCity(""); };
+
+  const WeatherBox = ({ title, w, aqi }) => (
     <div className="glass rounded-2xl p-5 text-center">
       <p className="text-white/50 text-xs mb-2">{title}</p>
       <WeatherIcon main={w.main} />
       <p className="text-white text-xl font-medium mt-2">{w.city}</p>
       <p className="text-white text-3xl font-light mt-2">{w.temp}{tempUnit}</p>
       <div className="mt-3 space-y-1 text-sm">
-        <p className="text-white/50">💧 {w.humidity}%</p>
-        <p className="text-white/50">💨 {w.windSpeed} {speedUnit}</p>
+        <p className="text-white/50"><FiDroplet className="text-white" /> {w.humidity}%</p>
+        <p className="text-white/50"><FiWind className="text-white" /> {w.windSpeed} {speedUnit}</p>
         <p className="text-white/50 capitalize">{w.description}</p>
+        {aqi && (
+          <div className="mt-2 pt-2 border-t border-white/10">
+            <p className="text-xs font-medium px-2 py-0.5 rounded inline-block text-black" style={{ backgroundColor: aqi.color }}>
+              AQI {aqi.aqi} · {aqi.level}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
 
   return (
     <div className="relative">
-      <button onClick={() => setIsOpen(!isOpen)} className="glass rounded-full px-4 py-2 text-white/50 hover:text-white text-xs font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2">
-        <FiGitBranch /><span>Compare</span>
+      <button onClick={openCompare} className="glass rounded-full px-4 py-2 text-white/50 hover:text-white text-xs font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2">
+        <FiGitBranch className="text-white" /><span>Compare</span>
       </button>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
           <div className="glass-strong rounded-3xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto animate-scale-in">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white text-lg font-medium">Compare Weather</h3>
-              <button onClick={close} className="text-white/40 hover:text-white text-2xl">×</button>
+              <h3 className="text-white text-lg font-medium">Compare Weather & AQI</h3>
+              <button onClick={close} aria-label="Close city compare" className="text-white/40 hover:text-white text-2xl">×</button>
             </div>
 
             <div className="flex gap-3 mb-6">
@@ -63,8 +83,8 @@ const CityCompare = ({ currentWeather }) => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <WeatherBox title="Current Location" w={currentWeather} />
-              {data ? <WeatherBox title="Comparison" w={data} /> : (
+              <WeatherBox title="Current Location" w={currentWeather} aqi={currentAqi} />
+              {data ? <WeatherBox title="Comparison" w={data} aqi={compareAqi} /> : (
                 <div className="glass rounded-2xl p-5 flex items-center justify-center">
                   <p className="text-white/30 text-sm">Search a city to compare</p>
                 </div>

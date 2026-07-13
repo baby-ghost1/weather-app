@@ -19,7 +19,7 @@ const WindCompass = ({ speed, deg }) => {
           {cardinals.map((d, i) => {
             const a = (i * 90 * Math.PI) / 180;
             return (
-              <text key={d} x={50 + 40 * Math.sin(a)} y={50 - 40 * Math.cos(a)} textAnchor="middle" dominantBaseline="middle" className="text-[8px] fill-white/40 font-medium">
+              <text key={d} x={50 + 40 * Math.sin(a)} y={50 - 40 * Math.cos(a)} textAnchor="middle" dominantBaseline="middle" className="text-[11px] fill-white/40 font-medium">
                 {d}
               </text>
             );

@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { FiCloud } from "react-icons/fi";
 
 const bgMap = {
   Clear: "bg-weather-clear", Clouds: "bg-weather-clouds",
@@ -9,6 +10,18 @@ const bgMap = {
 
 const WeatherBackground = ({ weatherMain }) => {
   const bgClass = bgMap[weatherMain] || "bg-weather-clear";
+  const [customBg, setCustomBg] = useState("");
+
+  useEffect(() => {
+    const check = () => {
+      const val = getComputedStyle(document.documentElement).getPropertyValue("--custom-bg").trim();
+      setCustomBg(val);
+    };
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
+    return () => obs.disconnect();
+  }, []);
 
   const rainDrops = useMemo(() =>
     Array.from({ length: 80 }, (_, i) => ({
@@ -36,6 +49,8 @@ const WeatherBackground = ({ weatherMain }) => {
 
   return (
     <div className={`fixed inset-0 transition-all duration-1000 ${bgClass}`}>
+      {customBg && <div className="fixed inset-0 z-0 transition-all duration-1000" style={{ background: customBg }} />}
+
       {weatherMain === "Clear" && <div className="sun-glow" />}
 
       {(weatherMain === "Rain" || weatherMain === "Drizzle") && (
@@ -55,11 +70,11 @@ const WeatherBackground = ({ weatherMain }) => {
       )}
 
       {weatherMain === "Clouds" && clouds.map((c, i) => (
-        <div key={i} className={`floating-cloud ${c.size} ${c.top}`} style={{ animation: `cloudDrift ${c.dur} linear infinite`, animationDelay: c.delay }}>☁</div>
+        <div key={i} className={`floating-cloud ${c.size} ${c.top}`} style={{ animation: `cloudDrift ${c.dur} linear infinite`, animationDelay: c.delay }}><FiCloud className="text-white" /></div>
       ))}
 
       {weatherMain === "Thunderstorm" && (
-        <div className="fixed inset-0 bg-white/5 animate-[flash_4s_ease-in-out_infinite] pointer-events-none z-1" />
+        <div className="fixed inset-0 bg-white/5 animate-[flash_4s_ease-in-out_infinite] pointer-events-none z-[1]" />
       )}
 
       <div className="fixed inset-0 bg-black/10 z-0" />

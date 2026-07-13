@@ -1,6 +1,17 @@
 const BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
 
-const formatWeatherData = (data) => ({
+const fetchWithRetry = async (url, retries = 2) => {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fetch(url);
+    } catch (err) {
+      if (i === retries) throw err;
+      await new Promise((r) => setTimeout(r, 300 * (i + 1)));
+    }
+  }
+};
+
+export const formatWeatherData = (data) => ({
   city: data.name,
   country: data.sys.country,
   temp: Math.round(data.main.temp),
@@ -8,9 +19,11 @@ const formatWeatherData = (data) => ({
   humidity: data.main.humidity,
   windSpeed: data.wind.speed,
   windDeg: data.wind.deg,
+  windGust: data.wind.gust || null,
   description: data.weather[0].description,
   main: data.weather[0].main,
   icon: data.weather[0].icon,
+  weatherId: data.weather[0].id,
   pressure: data.main.pressure,
   visibility: data.visibility,
   lat: data.coord.lat,
@@ -19,7 +32,26 @@ const formatWeatherData = (data) => ({
   sunset: data.sys.sunset,
   clouds: data.clouds.all,
   timezone: data.timezone,
+  rain: data.rain?.["1h"] || 0,
+  snow: data.snow?.["1h"] || 0,
+  dt: data.dt,
 });
+
+export const fetchWeatherByCity = async (city, units = "metric") => {
+  const url = `${BASE_URL}?q=${encodeURIComponent(city)}&units=${units}&appid=${process.env.OPENWEATHER_API_KEY}`;
+  const response = await fetchWithRetry(url);
+  if (!response.ok) return { success: false, message: "Error fetching weather" };
+  const data = await response.json();
+  return { success: true, data: formatWeatherData(data) };
+};
+
+export const fetchWeatherByCoords = async (lat, lon, units = "metric") => {
+  const url = `${BASE_URL}?lat=${lat}&lon=${lon}&units=${units}&appid=${process.env.OPENWEATHER_API_KEY}`;
+  const response = await fetchWithRetry(url);
+  if (!response.ok) return { success: false, message: "Error fetching weather" };
+  const data = await response.json();
+  return { success: true, data: formatWeatherData(data) };
+};
 
 export const getWeatherByCity = async (req, res, next) => {
   try {
@@ -30,21 +62,9 @@ export const getWeatherByCity = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "City name is required" });
     }
 
-    const url = `${BASE_URL}?q=${encodeURIComponent(city)}&units=${units}&appid=${process.env.OPENWEATHER_API_KEY}`;
-    const response = await fetch(url);
-
-    if (response.status === 404) {
-      return res.status(404).json({ success: false, message: "City not found. Please check spelling." });
-    }
-    if (response.status === 401) {
-      return res.status(401).json({ success: false, message: "Invalid API key" });
-    }
-    if (!response.ok) {
-      return res.status(response.status).json({ success: false, message: "Error fetching weather data" });
-    }
-
-    const data = await response.json();
-    res.json({ success: true, data: formatWeatherData(data) });
+    const result = await fetchWeatherByCity(city, units);
+    if (!result.success) return res.status(500).json(result);
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -55,15 +75,9 @@ export const getWeatherByCoords = async (req, res, next) => {
     const { lat, lon } = req.params;
     const { units = "metric" } = req.query;
 
-    const url = `${BASE_URL}?lat=${lat}&lon=${lon}&units=${units}&appid=${process.env.OPENWEATHER_API_KEY}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      return res.status(response.status).json({ success: false, message: "Error fetching weather data" });
-    }
-
-    const data = await response.json();
-    res.json({ success: true, data: formatWeatherData(data) });
+    const result = await fetchWeatherByCoords(lat, lon, units);
+    if (!result.success) return res.status(500).json(result);
+    res.json(result);
   } catch (error) {
     next(error);
   }

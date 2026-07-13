@@ -9,11 +9,11 @@ const ShareWeather = ({ weather }) => {
   if (!weather) return null;
 
   const shareText = [
-    `🌤 ${weather.city}, ${weather.country}`,
-    `🌡 ${weather.temp}${tempUnit} (Feels like ${weather.feelsLike}${tempUnit})`,
-    `💧 Humidity: ${weather.humidity}%`,
-    `💨 Wind: ${weather.windSpeed} ${speedUnit}`,
-    `☁ ${weather.description}`,
+    `${weather.city}, ${weather.country}`,
+    `Temp: ${weather.temp}${tempUnit} (Feels like ${weather.feelsLike}${tempUnit})`,
+    `Humidity: ${weather.humidity}%`,
+    `Wind: ${weather.windSpeed} ${speedUnit}`,
+    `${weather.description}`,
     ``,
     `— via WeatherFlow`,
   ].join("\n");
@@ -38,7 +38,7 @@ const ShareWeather = ({ weather }) => {
 
   return (
     <button onClick={handleShare} className="glass rounded-full px-4 py-2 text-white/50 hover:text-white text-xs font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2" title="Share weather">
-      {copied ? <><FiCheck className="text-green-400" /><span className="text-green-400">Copied!</span></> : <><FiShare2 /><span>Share</span></>}
+      {copied ? <><FiCheck className="text-green-400" /><span className="text-green-400">Copied!</span></> : <><FiShare2 className="text-white" /><span>Share</span></>}
     </button>
   );
 };

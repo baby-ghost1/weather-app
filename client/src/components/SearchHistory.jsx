@@ -5,13 +5,15 @@ import { getHistory, clearHistory, deleteHistory } from "../services/api";
 const SearchHistory = ({ onSelectCity }) => {
   const [history, setHistory] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState("");
 
   const fetchHistory = async () => {
-    try { const res = await getHistory(); if (res.success) setHistory(res.data); } catch { /* silent */ }
+    try { const res = await getHistory(); if (res.success) setHistory(res.data); else setError("Failed to load history."); } catch { setError("Failed to load history."); }
   };
 
   useEffect(() => { fetchHistory(); }, []);
 
+  if (error) return null;
   if (history.length === 0) return null;
 
   return (
@@ -27,9 +29,9 @@ const SearchHistory = ({ onSelectCity }) => {
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
             <span className="text-white/80 font-medium text-sm">Search History</span>
             <div className="flex items-center gap-3">
-              <button onClick={async () => { try { await clearHistory(); setHistory([]); setIsOpen(false); } catch { /* silent */ } }}
+              <button onClick={async () => { try { await clearHistory(); setHistory([]); setIsOpen(false); } catch { setError("Failed to clear history."); } }}
                 className="text-red-400 hover:text-red-300 text-xs transition-colors">Clear all</button>
-              <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white/70 transition-colors"><FiX /></button>
+              <button onClick={() => setIsOpen(false)} aria-label="Close history" className="text-white/40 hover:text-white/70 transition-colors"><FiX /></button>
             </div>
           </div>
           <div className="max-h-64 overflow-y-auto">
@@ -41,8 +43,8 @@ const SearchHistory = ({ onSelectCity }) => {
                   <p className="text-white text-sm font-medium">{item.city}, {item.country}</p>
                   <p className="text-white/40 text-xs">{item.temp}° · {item.weather}</p>
                 </div>
-                <button onClick={async (e) => { e.stopPropagation(); try { await deleteHistory(item._id); setHistory((p) => p.filter((h) => h._id !== item._id)); } catch { /* silent */ } }}
-                  className="text-white/20 hover:text-red-400 transition-colors"><FiTrash2 className="text-sm" /></button>
+                <button onClick={async (e) => { e.stopPropagation(); try { await deleteHistory(item._id); setHistory((p) => p.filter((h) => h._id !== item._id)); } catch { setError("Failed to delete history entry."); } }}
+                  aria-label={`Delete ${item.city} from history`} className="text-white/20 hover:text-red-400 transition-colors"><FiTrash2 className="text-sm" /></button>
               </div>
             ))}
           </div>

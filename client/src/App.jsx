@@ -1,31 +1,86 @@
 import { useState, useEffect } from "react";
 import { UnitProvider } from "./context/UnitContext";
 import WeatherBackground from "./components/WeatherBackground";
+import WeatherParticles from "./components/WeatherParticles";
 import SearchBar from "./components/SearchBar";
 import CurrentTime from "./components/CurrentTime";
 import WeatherCard from "./components/WeatherCard";
 import HourlyForecast from "./components/HourlyForecast";
+import DailyForecast from "./components/DailyForecast";
 import WeatherDetails from "./components/WeatherDetails";
 import WeatherAlerts from "./components/WeatherAlerts";
 import AirQualityCard from "./components/AirQualityCard";
+import AQIForecast from "./components/AQIForecast";
 import UVIndexCard from "./components/UVIndexCard";
 import WindCompass from "./components/WindCompass";
+import WeatherCharts from "./components/WeatherCharts";
+import WeatherMap from "./components/WeatherMap";
+import MoonPhase from "./components/MoonPhase";
+import SunPosition from "./components/SunPosition";
+import PollenCount from "./components/PollenCount";
+import FireIndex from "./components/FireIndex";
+import EarthquakeAlerts from "./components/EarthquakeAlerts";
+import WeatherHistory from "./components/WeatherHistory";
+import TravelAdvisory from "./components/TravelAdvisory";
+import HealthIndex from "./components/HealthIndex";
+import SportsIndex from "./components/SportsIndex";
+import AgricultureIndex from "./components/AgricultureIndex";
+import PhotographyIndex from "./components/PhotographyIndex";
+import WeatherJournal from "./components/WeatherJournal";
+import SeasonalCalendar from "./components/SeasonalCalendar";
+import WeatherQuiz from "./components/WeatherQuiz";
+import WeatherNotifications from "./components/WeatherNotifications";
+import EnergyCost from "./components/EnergyCost";
+import AllergyCalendar from "./components/AllergyCalendar";
+import WeatherNews from "./components/WeatherNews";
+import CarbonFootprint from "./components/CarbonFootprint";
+import MultiCityDashboard from "./components/MultiCityDashboard";
+import WeatherTimer from "./components/WeatherTimer";
+import ARWeather from "./components/ARWeather";
+import SkeletonLoader from "./components/SkeletonLoader";
+import ThemeSwitcher from "./components/ThemeSwitcher";
 import UnitToggle from "./components/UnitToggle";
 import ShareWeather from "./components/ShareWeather";
 import CityCompare from "./components/CityCompare";
 import SearchHistory from "./components/SearchHistory";
-import Loader from "./components/Loader";
+import SleepQualityIndex from "./components/SleepQualityIndex";
+import PetWeather from "./components/PetWeather";
+import CommutePlanner from "./components/CommutePlanner";
+import WeatherPlaylist from "./components/WeatherPlaylist";
+import WeatherRecipe from "./components/WeatherRecipe";
+import FlightDelayPredictor from "./components/FlightDelayPredictor";
+import GardenPlanner from "./components/GardenPlanner";
+import WorkoutScheduler from "./components/WorkoutScheduler";
+import MoodTracker from "./components/MoodTracker";
+import DewPoint from "./components/DewPoint";
+import WindChillHeatIndex from "./components/WindChillHeatIndex";
+import VisibilityForecast from "./components/VisibilityForecast";
+import LightningTracker from "./components/LightningTracker";
+import HailRisk from "./components/HailRisk";
+import UVHourlyForecast from "./components/UVHourlyForecast";
+import SurfWaveReport from "./components/SurfWaveReport";
+import WeatherStories from "./components/WeatherStories";
+import MonthlyHeatmap from "./components/MonthlyHeatmap";
+import WeatherShareCard from "./components/WeatherShareCard";
+import WeatherSounds from "./components/WeatherSounds";
+import UnitConverter from "./components/UnitConverter";
+import WeatherFacts from "./components/WeatherFacts";
+import ScrollToTop from "./components/ScrollToTop";
 import { useWeather } from "./hooks/useWeather";
 
 const WeatherApp = () => {
-  const { weather, forecast, loading, error, setError, fetchByCity, fetchByCoords } = useWeather();
+  const { weather, forecast, loading, unitLoading, error, setError, fetchByCity, fetchByCoords } = useWeather();
   const [hasGeolocated, setHasGeolocated] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [favOpen, setFavOpen] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("weather_favorites");
-    if (stored) setFavorites(JSON.parse(stored));
+    try {
+      const stored = localStorage.getItem("weather_favorites");
+      if (stored) setFavorites(JSON.parse(stored));
+    } catch {
+      localStorage.removeItem("weather_favorites");
+    }
   }, []);
 
   const saveFavorites = (favs) => {
@@ -46,16 +101,7 @@ const WeatherApp = () => {
   const isFavorite = weather && favorites.some((f) => f.city === weather.city);
 
   useEffect(() => {
-    if (hasGeolocated) return;
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => { fetchByCoords(pos.coords.latitude, pos.coords.longitude); setHasGeolocated(true); },
-        () => setHasGeolocated(true),
-        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
-      );
-    } else {
-      setHasGeolocated(true);
-    }
+    fetchByCity("Jahanabad");
   }, []);
 
   const handleSearch = (city) => fetchByCity(city);
@@ -72,8 +118,11 @@ const WeatherApp = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden">
+    <>
+    <div className="min-h-screen w-full relative">
       <WeatherBackground weatherMain={weather?.main} />
+
+      {weather && <WeatherParticles weatherMain={weather.main} />}
 
       <div className="relative z-10 min-h-screen flex flex-col px-6 sm:px-12 md:px-20 lg:px-32 py-8">
         <header className="flex items-center justify-between mb-8 animate-fade-in">
@@ -85,8 +134,11 @@ const WeatherApp = () => {
           </div>
           <div className="flex items-center gap-2">
             <UnitToggle />
-            {weather && <ShareWeather weather={weather} />}
+            <ThemeSwitcher />
+            {weather && <MultiCityDashboard currentWeather={weather} />}
+            {weather && <WeatherMap weather={weather} />}
             {weather && <CityCompare currentWeather={weather} />}
+            {weather && <ShareWeather weather={weather} />}
           </div>
         </header>
 
@@ -95,6 +147,13 @@ const WeatherApp = () => {
         </div>
 
         {weather && !loading && <WeatherAlerts weather={weather} />}
+
+        {unitLoading && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 glass rounded-full px-4 py-2 flex items-center gap-2 animate-fade-in">
+            <span className="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="text-white/60 text-xs">Updating units...</span>
+          </div>
+        )}
 
         {error && (
           <div className="max-w-2xl w-full mx-auto mb-6 animate-slide-down">
@@ -105,7 +164,13 @@ const WeatherApp = () => {
           </div>
         )}
 
-        {loading && <Loader />}
+        {loading && (
+          <div className="max-w-5xl w-full mx-auto space-y-8">
+            <SkeletonLoader type="card" />
+            <SkeletonLoader type="forecast" />
+            <SkeletonLoader type="details" />
+          </div>
+        )}
 
         {weather && !loading && (
           <main className="flex-1 flex flex-col gap-8 max-w-5xl w-full mx-auto">
@@ -114,7 +179,7 @@ const WeatherApp = () => {
               <WeatherCard weather={weather} />
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center flex-wrap gap-2">
               <button onClick={isFavorite ? (e) => removeFavorite(weather.city, e) : addFavorite}
                 className="glass rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2">
                 <span className={isFavorite ? "text-yellow-400" : "text-white/40"}>{isFavorite ? "★" : "☆"}</span>
@@ -122,15 +187,93 @@ const WeatherApp = () => {
               </button>
             </div>
 
-            <HourlyForecast forecast={forecast} />
+            <div className="flex justify-center flex-wrap gap-2">
+              {weather && <WeatherNotifications weather={weather} />}
+              {weather && <WeatherTimer weather={weather} />}
+              {weather && <ARWeather weather={weather} />}
+            </div>
+
+            {forecast.hourly?.length > 0 && <HourlyForecast hourly={forecast.hourly} />}
+
+            {forecast.daily?.length > 0 && <DailyForecast daily={forecast.daily} />}
+
+            {forecast.hourly?.length > 0 && <WeatherCharts hourly={forecast.hourly} />}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <AirQualityCard lat={weather.lat} lon={weather.lon} />
-              <UVIndexCard lat={weather.lat} lon={weather.lon} />
+              <UVIndexCard lat={weather.lat} lon={weather.lon} sunrise={weather.sunrise} sunset={weather.sunset} />
               <WindCompass speed={weather.windSpeed} deg={weather.windDeg} />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SunPosition weather={weather} />
+              <AQIForecast lat={weather.lat} lon={weather.lon} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <HealthIndex weather={weather} />
+              <SportsIndex weather={weather} />
+              <AgricultureIndex weather={weather} />
+              <PhotographyIndex weather={weather} />
+              <EnergyCost weather={weather} />
+              <CarbonFootprint weather={weather} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <PollenCount weather={weather} />
+              <FireIndex weather={weather} />
+              <AllergyCalendar />
+              <WeatherNews weather={weather} forecast={forecast} />
+            </div>
+
+            <EarthquakeAlerts lat={weather.lat} lon={weather.lon} />
+
+            <TravelAdvisory weather={weather} />
+
             <WeatherDetails weather={weather} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <MoonPhase />
+              <SeasonalCalendar />
+            </div>
+
+            <WeatherHistory weather={weather} />
+
+            <WeatherJournal weather={weather} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SleepQualityIndex weather={weather} />
+              <PetWeather weather={weather} />
+              <CommutePlanner weather={weather} />
+              <GardenPlanner weather={weather} />
+              <WorkoutScheduler weather={weather} />
+              <MoodTracker weather={weather} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <DewPoint weather={weather} />
+              <WindChillHeatIndex weather={weather} />
+              <VisibilityForecast weather={weather} />
+              <LightningTracker weather={weather} />
+              <HailRisk weather={weather} />
+              <UVHourlyForecast weather={weather} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SurfWaveReport weather={weather} />
+              <WeatherShareCard weather={weather} />
+              <MonthlyHeatmap weather={weather} />
+            </div>
+
+            <WeatherStories weather={weather} />
+
+            <WeatherSounds weather={weather} />
+
+            <WeatherQuiz />
+
+            <WeatherFacts />
+
+            <UnitConverter />
           </main>
         )}
 
@@ -172,7 +315,11 @@ const WeatherApp = () => {
           <SearchHistory onSelectCity={handleSearch} />
         </footer>
       </div>
+
     </div>
+
+    <ScrollToTop />
+    </>
   );
 };
 
