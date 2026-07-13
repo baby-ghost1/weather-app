@@ -3,8 +3,7 @@ import { UnitProvider } from "./context/UnitContext";
 import WeatherBackground from "./components/WeatherBackground";
 import WeatherParticles from "./components/WeatherParticles";
 import SearchBar from "./components/SearchBar";
-import CurrentTime from "./components/CurrentTime";
-import WeatherCard from "./components/WeatherCard";
+import HeroCard from "./components/HeroCard";
 import HourlyForecast from "./components/HourlyForecast";
 import DailyForecast from "./components/DailyForecast";
 import WeatherDetails from "./components/WeatherDetails";
@@ -101,10 +100,16 @@ const WeatherApp = () => {
   const isFavorite = weather && favorites.some((f) => f.city === weather.city);
 
   useEffect(() => {
-    fetchByCity("Jahanabad");
+    fetchByCoords(23.02, 72.57);
   }, []);
 
-  const handleSearch = (city) => fetchByCity(city);
+  const handleSearch = (city, lat, lon) => {
+    if (lat != null && lon != null) {
+      fetchByCoords(lat, lon);
+    } else {
+      fetchByCity(city);
+    }
+  };
   const handleLocation = () => {
     if (!("geolocation" in navigator)) { setError("Geolocation is not supported by your browser."); return; }
     navigator.geolocation.getCurrentPosition(
@@ -142,7 +147,7 @@ const WeatherApp = () => {
           </div>
         </header>
 
-        <div className="max-w-2xl w-full mx-auto mb-6 animate-slide-up">
+        <div className="max-w-2xl w-full mx-auto mb-10 animate-slide-up">
           <SearchBar onSearch={handleSearch} onLocation={handleLocation} loading={loading} />
         </div>
 
@@ -174,20 +179,13 @@ const WeatherApp = () => {
 
         {weather && !loading && (
           <main className="flex-1 flex flex-col gap-8 max-w-5xl w-full mx-auto">
-            <div className="flex flex-col items-center gap-6">
-              <CurrentTime />
-              <WeatherCard weather={weather} />
-            </div>
+            <HeroCard
+              weather={weather}
+              isFavorite={isFavorite}
+              onToggleFavorite={isFavorite ? (e) => removeFavorite(weather.city, e) : addFavorite}
+            />
 
-            <div className="flex justify-center flex-wrap gap-2">
-              <button onClick={isFavorite ? (e) => removeFavorite(weather.city, e) : addFavorite}
-                className="glass rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2">
-                <span className={isFavorite ? "text-yellow-400" : "text-white/40"}>{isFavorite ? "★" : "☆"}</span>
-                <span className="text-white/70">{isFavorite ? "Saved to Favorites" : "Save to Favorites"}</span>
-              </button>
-            </div>
-
-            <div className="flex justify-center flex-wrap gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {weather && <WeatherNotifications weather={weather} />}
               {weather && <WeatherTimer weather={weather} />}
               {weather && <ARWeather weather={weather} />}
@@ -202,7 +200,7 @@ const WeatherApp = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <AirQualityCard lat={weather.lat} lon={weather.lon} />
               <UVIndexCard lat={weather.lat} lon={weather.lon} sunrise={weather.sunrise} sunset={weather.sunset} />
-              <WindCompass speed={weather.windSpeed} deg={weather.windDeg} />
+              <WindCompass speed={weather.windSpeed} deg={weather.windDeg} gust={weather.windGust} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

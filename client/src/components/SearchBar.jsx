@@ -48,19 +48,30 @@ const SearchBar = ({ onSearch, onLocation, loading }) => {
     debounceTimer = setTimeout(async () => {
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=6&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=8&addressdetails=1`,
           { headers: { "User-Agent": "WeatherFlow/1.0" } }
         );
         const data = await res.json();
-        const cities = data
-          .filter((d) => d.type === "city" || d.type === "town" || d.type === "village" || d.type === "administrative" || d.class === "place")
-          .map((d) => ({
-            name: d.display_name.split(",")[0],
-            fullName: d.display_name,
-            lat: parseFloat(d.lat),
-            lon: parseFloat(d.lon),
-          }));
-        setSuggestions(cities.slice(0, 5));
+        const places = data
+          .filter((d) => d.type === "city" || d.type === "town" || d.type === "village" || d.type === "hamlet" || d.type === "administrative" || d.class === "place")
+          .map((d) => {
+            const addr = d.address || {};
+            const parts = [];
+            if (addr.state) parts.push(addr.state);
+            if (addr.country) parts.push(addr.country);
+            return {
+              name: d.display_name.split(",")[0],
+              fullName: d.display_name,
+              state: addr.state || "",
+              country: addr.country || "",
+              country_code: addr.country_code?.toUpperCase() || "",
+              display: parts.join(", "),
+              lat: parseFloat(d.lat),
+              lon: parseFloat(d.lon),
+              type: d.type,
+            };
+          });
+        setSuggestions(places.slice(0, 6));
       } catch {
         setSuggestions([]);
       } finally {
@@ -77,16 +88,14 @@ const SearchBar = ({ onSearch, onLocation, loading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim()) {
-      onSearch(query);
-      setIsFocused(false);
-      setSuggestions([]);
+    if (query.trim() && suggestions.length > 0) {
+      handleSuggestionClick(suggestions[0]);
     }
   };
 
   const handleSuggestionClick = (s) => {
-    setQuery(s.name);
-    onSearch(s.name);
+    setQuery(`${s.name}${s.display ? ", " + s.display : ""}`);
+    onSearch(s.name, s.lat, s.lon);
     setIsFocused(false);
     setSuggestions([]);
   };
@@ -111,7 +120,7 @@ const SearchBar = ({ onSearch, onLocation, loading }) => {
             onChange={handleChange}
             onFocus={() => setIsFocused(true)}
             onBlur={handleBlur}
-            placeholder="Search city... (press / to focus)"
+            placeholder="Search city, town or village... (press / to focus)"
             className="flex-1 bg-transparent text-white placeholder:text-white/40 outline-none text-lg"
             autoComplete="off"
           />
@@ -131,7 +140,7 @@ const SearchBar = ({ onSearch, onLocation, loading }) => {
       </form>
 
       {suggestions.length > 0 && (
-        <div className="absolute w-full mt-2 glass-strong rounded-xl shadow-2xl z-50 overflow-hidden animate-slide-down">
+        <div className="absolute w-full mt-2 glass-strong rounded-xl shadow-2xl z-50 overflow-hidden animate-slide-down max-h-80 overflow-y-auto">
           {suggestions.map((s, i) => (
             <button
               key={i}
@@ -139,10 +148,17 @@ const SearchBar = ({ onSearch, onLocation, loading }) => {
               className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/10 transition-colors text-left border-b border-white/5 last:border-b-0"
             >
               <FiMapPin className="text-white/30 text-sm shrink-0" />
-              <div className="min-w-0">
-                <p className="text-white text-sm">{s.name}</p>
-                <p className="text-white/30 text-[11px] truncate">{s.fullName}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-white text-sm font-medium">{s.name}</p>
+                <p className="text-white/40 text-[11px] truncate">
+                  {s.state && <span>{s.state}, </span>}
+                  {s.country}
+                  <span className="text-white/20 ml-1.5 capitalize">({s.type})</span>
+                </p>
               </div>
+              {s.country_code && (
+                <span className="text-white/20 text-[11px] shrink-0">{s.country_code}</span>
+              )}
             </button>
           ))}
         </div>

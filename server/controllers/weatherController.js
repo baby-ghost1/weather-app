@@ -1,4 +1,5 @@
 const BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
+const GEO_URL = "https://api.openweathermap.org/geo/1.0/reverse";
 
 const fetchWithRetry = async (url, retries = 2) => {
   for (let i = 0; i <= retries; i++) {
@@ -11,9 +12,10 @@ const fetchWithRetry = async (url, retries = 2) => {
   }
 };
 
-export const formatWeatherData = (data) => ({
+export const formatWeatherData = (data, stateName) => ({
   city: data.name,
   country: data.sys.country,
+  state: stateName || "",
   temp: Math.round(data.main.temp),
   feelsLike: Math.round(data.main.feels_like),
   humidity: data.main.humidity,
@@ -37,12 +39,25 @@ export const formatWeatherData = (data) => ({
   dt: data.dt,
 });
 
+const getStateName = async (lat, lon) => {
+  try {
+    const url = `${GEO_URL}?lat=${lat}&lon=${lon}&limit=1&appid=${process.env.OPENWEATHER_API_KEY}`;
+    const response = await fetchWithRetry(url);
+    if (!response.ok) return "";
+    const data = await response.json();
+    return data[0]?.state || "";
+  } catch {
+    return "";
+  }
+};
+
 export const fetchWeatherByCity = async (city, units = "metric") => {
   const url = `${BASE_URL}?q=${encodeURIComponent(city)}&units=${units}&appid=${process.env.OPENWEATHER_API_KEY}`;
   const response = await fetchWithRetry(url);
   if (!response.ok) return { success: false, message: "Error fetching weather" };
   const data = await response.json();
-  return { success: true, data: formatWeatherData(data) };
+  const stateName = await getStateName(data.coord.lat, data.coord.lon);
+  return { success: true, data: formatWeatherData(data, stateName) };
 };
 
 export const fetchWeatherByCoords = async (lat, lon, units = "metric") => {
@@ -50,7 +65,8 @@ export const fetchWeatherByCoords = async (lat, lon, units = "metric") => {
   const response = await fetchWithRetry(url);
   if (!response.ok) return { success: false, message: "Error fetching weather" };
   const data = await response.json();
-  return { success: true, data: formatWeatherData(data) };
+  const stateName = await getStateName(lat, lon);
+  return { success: true, data: formatWeatherData(data, stateName) };
 };
 
 export const getWeatherByCity = async (req, res, next) => {

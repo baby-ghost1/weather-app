@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FiCamera, FiX, FiSun, FiCloud } from "react-icons/fi";
+import { FiCamera, FiX } from "react-icons/fi";
 import { WiDaySunny, WiRain, WiDayRain, WiFog, WiThunderstorm } from "react-icons/wi";
 import { TbSnowflake } from "react-icons/tb";
 import { useUnit } from "../context/UnitContext";
@@ -12,16 +12,15 @@ const ARWeather = ({ weather }) => {
   const { tempUnit } = useUnit();
 
   const startCamera = async () => {
+    setError(null);
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
       });
       setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (err) {
-      setError("Camera access denied. Please allow camera access.");
+      if (videoRef.current) videoRef.current.srcObject = mediaStream;
+    } catch {
+      setError("Camera access denied. Please allow camera in browser settings.");
     }
   };
 
@@ -39,34 +38,43 @@ const ARWeather = ({ weather }) => {
   }, [isOpen]);
 
   useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
-    }
+    if (videoRef.current && stream) videoRef.current.srcObject = stream;
   }, [stream]);
 
   if (!weather) return null;
 
   const getWeatherIcon = (main) => {
     const map = {
-      Clear: <WiDaySunny size={40} className="text-white" />,
-      Clouds: <FiCloud size={32} className="text-white" />,
-      Rain: <WiRain size={40} className="text-white" />,
-      Snow: <TbSnowflake size={36} className="text-white" />,
-      Thunderstorm: <WiThunderstorm size={40} className="text-white" />,
-      Drizzle: <WiDayRain size={40} className="text-white" />,
-      Haze: <WiFog size={40} className="text-white" />,
-      Mist: <WiFog size={40} className="text-white" />,
+      Clear: <WiDaySunny size={22} className="text-yellow-300" />,
+      Clouds: <WiDaySunny size={22} className="text-gray-300" />,
+      Rain: <WiRain size={22} className="text-blue-300" />,
+      Snow: <TbSnowflake size={20} className="text-cyan-200" />,
+      Thunderstorm: <WiThunderstorm size={22} className="text-yellow-400" />,
+      Drizzle: <WiDayRain size={22} className="text-blue-200" />,
+      Haze: <WiFog size={22} className="text-gray-300" />,
+      Mist: <WiFog size={22} className="text-gray-300" />,
     };
-    return map[main] || <FiSun size={32} className="text-white" />;
+    return map[main] || <WiDaySunny size={22} className="text-yellow-300" />;
   };
 
   return (
-    <div>
+    <>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="glass rounded-full px-4 py-2 text-white/50 hover:text-white text-xs font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2"
+        onClick={() => setIsOpen(true)}
+        className="glass rounded-2xl p-4 hover-lift animate-scale-in min-w-[220px] text-left transition-all hover:bg-white/15"
       >
-        <FiCamera className="text-white" /><span>AR View</span>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-purple-400/15 flex items-center justify-center shrink-0">
+            <FiCamera className="text-purple-300" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider">AR View</h3>
+            <div className="flex items-center gap-1.5 mt-1">
+              {getWeatherIcon(weather.main)}
+              <span className="text-white/60 text-[11px]">{weather.temp}{tempUnit} · {weather.description}</span>
+            </div>
+          </div>
+        </div>
       </button>
 
       {isOpen && (
@@ -102,7 +110,7 @@ const ARWeather = ({ weather }) => {
                   <span className="text-4xl">{getWeatherIcon(weather.main)}</span>
                   <div>
                     <p className="text-white text-3xl font-light">{weather.temp}{tempUnit}</p>
-                    <p className="text-white/60 text-xs">{weather.city}, {weather.country}</p>
+                    <p className="text-white/60 text-xs">{weather.city}{weather.state ? `, ${weather.state}` : ""}, {weather.country}</p>
                   </div>
                 </div>
                 <p className="text-white/40 text-xs mt-1 capitalize">{weather.description}</p>
@@ -132,7 +140,7 @@ const ARWeather = ({ weather }) => {
           )}
         </div>
       )}
-    </div>
+    </>
   );
 };
 

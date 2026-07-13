@@ -1,18 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { FiClock, FiBell, FiX, FiCheck } from "react-icons/fi";
+import { FiClock, FiCheck, FiBell } from "react-icons/fi";
 import { WiRain, WiThunderstorm } from "react-icons/wi";
 import { TbFlame, TbSnowflake } from "react-icons/tb";
 
 const presetTimers = [
-  { label: "Rain Alert", condition: "Rain", icon: <WiRain size={24} className="text-white" />, desc: "Alert when rain starts" },
-  { label: "Storm Warning", condition: "Thunderstorm", icon: <WiThunderstorm size={24} className="text-white" />, desc: "Alert for thunderstorms" },
-  { label: "Heat Alert", condition: "hot", icon: <TbFlame size={22} className="text-white" />, desc: "Alert above 38°C" },
-  { label: "Cold Alert", condition: "cold", icon: <TbSnowflake size={22} className="text-white" />, desc: "Alert below 5°C" },
+  { label: "Rain", condition: "Rain", icon: <WiRain size={18} className="text-blue-300" />, desc: "When rain starts" },
+  { label: "Storm", condition: "Thunderstorm", icon: <WiThunderstorm size={18} className="text-yellow-300" />, desc: "Thunderstorm alert" },
+  { label: "Heat", condition: "hot", icon: <TbFlame size={16} className="text-orange-300" />, desc: "Above 38°C" },
+  { label: "Cold", condition: "cold", icon: <TbSnowflake size={16} className="text-cyan-300" />, desc: "Below 5°C" },
 ];
 
 const WeatherTimer = ({ weather }) => {
   const [activeTimers, setActiveTimers] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
   const timersRef = useRef([]);
 
   useEffect(() => {
@@ -21,18 +20,15 @@ const WeatherTimer = ({ weather }) => {
 
   useEffect(() => {
     if (!weather) return;
-
     const check = () => {
       const currentTimers = timersRef.current;
       if (currentTimers.length === 0) return;
-
       currentTimers.forEach((timer) => {
         let triggered = false;
         if (timer.condition === "Rain" && weather.main === "Rain") triggered = true;
         if (timer.condition === "Thunderstorm" && weather.main === "Thunderstorm") triggered = true;
         if (timer.condition === "hot" && weather.temp >= 38) triggered = true;
         if (timer.condition === "cold" && weather.temp <= 5) triggered = true;
-
         if (triggered && !timer.fired) {
           timer.fired = true;
           if ("Notification" in window && Notification.permission === "granted") {
@@ -41,7 +37,6 @@ const WeatherTimer = ({ weather }) => {
         }
       });
     };
-
     const interval = setInterval(check, 60000);
     check();
     return () => clearInterval(interval);
@@ -57,59 +52,46 @@ const WeatherTimer = ({ weather }) => {
   };
 
   return (
-    <div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="glass rounded-full px-4 py-2 text-white/50 hover:text-white text-xs font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2"
-      >
-        <FiClock className="text-white" /><span>Weather Timer</span>
+    <div className="glass rounded-2xl p-4 hover-lift animate-scale-in min-w-[220px]">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider flex items-center gap-2">
+          <FiClock className="text-white" /> Weather Timer
+        </h3>
         {activeTimers.length > 0 && (
-          <span className="bg-green-400/20 text-green-400 text-[11px] px-1.5 py-0.5 rounded-full">{activeTimers.length}</span>
+          <span className="bg-green-400/20 text-green-400 text-[11px] px-1.5 py-0.5 rounded-full flex items-center gap-1">
+            <div className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+            {activeTimers.length}
+          </span>
         )}
-      </button>
+      </div>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="glass-strong rounded-3xl p-6 w-full max-w-md animate-scale-in">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white text-lg font-medium">Weather Timers</h3>
-              <button onClick={() => setIsOpen(false)} aria-label="Close timer" className="text-white/40 hover:text-white text-2xl">×</button>
-            </div>
-
-            <p className="text-white/30 text-xs mb-4">Set alerts for specific weather conditions. You'll be notified when triggered.</p>
-
-            <div className="space-y-2">
-              {presetTimers.map((preset) => {
-                const isActive = activeTimers.find((t) => t.condition === preset.condition);
-                return (
-                  <button
-                    key={preset.condition}
-                    onClick={() => toggleTimer(preset)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
-                      isActive ? "bg-green-400/10 border border-green-400/30" : "bg-white/5 hover:bg-white/10"
-                    }`}
-                  >
-                    <span className="text-xl">{preset.icon}</span>
-                    <div className="text-left flex-1">
-                      <p className="text-white text-sm">{preset.label}</p>
-                      <p className="text-white/30 text-[11px]">{preset.desc}</p>
-                    </div>
-                    {isActive ? (
-                      <FiCheck className="text-green-400" />
-                    ) : (
-                      <FiBell className="text-white/20" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {activeTimers.length > 0 && (
-              <div className="mt-4 pt-3 border-t border-white/10">
-                <p className="text-white/30 text-[11px]">{activeTimers.length} active timer(s) • Checking every minute</p>
+      <div className="grid grid-cols-2 gap-1.5">
+        {presetTimers.map((preset) => {
+          const isActive = activeTimers.find((t) => t.condition === preset.condition);
+          return (
+            <button
+              key={preset.condition}
+              onClick={() => toggleTimer(preset)}
+              className={`flex items-center gap-2 p-2 rounded-lg transition-all text-left ${
+                isActive
+                  ? "bg-green-400/10 border border-green-400/30"
+                  : "bg-white/5 hover:bg-white/8 border border-transparent"
+              }`}
+            >
+              <span className="shrink-0">{preset.icon}</span>
+              <div className="min-w-0">
+                <p className={`text-[11px] font-medium ${isActive ? "text-green-300" : "text-white/60"}`}>{preset.label}</p>
+                <p className="text-white/25 text-[10px] truncate">{preset.desc}</p>
               </div>
-            )}
-          </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {activeTimers.length > 0 && (
+        <div className="mt-2.5 flex items-center gap-1.5 text-white/25 text-[10px]">
+          <FiBell className="text-[10px]" />
+          Checking every minute
         </div>
       )}
     </div>

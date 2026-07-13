@@ -1,17 +1,21 @@
 import { useState } from "react";
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, ReferenceDot } from "recharts";
 import { useUnit } from "../context/UnitContext";
 import { formatHour } from "../utils/format";
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="glass-strong rounded-xl px-3 py-2 text-xs">
-      <p className="text-white/60 mb-1">{label}</p>
+    <div className="glass-strong rounded-xl px-3.5 py-2.5 text-xs shadow-xl">
+      <p className="text-white/50 mb-1.5 font-medium">{label}</p>
       {payload.map((entry, i) => (
-        <p key={i} style={{ color: entry.color }} className="font-medium">
-          {entry.name}: {entry.value}{entry.name === "Pop" ? "%" : entry.name === "Humidity" ? "%" : "°"}
-        </p>
+        <div key={i} className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: entry.color }} />
+          <span className="text-white/40">{entry.name}:</span>
+          <span style={{ color: entry.color }} className="font-medium">
+            {entry.value}{entry.name === "Pop" || entry.name === "Humidity" ? "%" : entry.name === "Wind" ? " m/s" : "°"}
+          </span>
+        </div>
       ))}
     </div>
   );
@@ -33,18 +37,35 @@ const WeatherCharts = ({ hourly }) => {
   }));
 
   const charts = {
-    temp: { label: "Temperature", dataKey: ["Temp", "Feels"], colors: ["#f97316", "#60a5fa"] },
-    humidity: { label: "Humidity", dataKey: ["Humidity"], colors: ["#60a5fa"] },
-    pop: { label: "Rain Chance", dataKey: ["Pop"], colors: ["#38bdf8"] },
-    wind: { label: "Wind", dataKey: ["Wind"], colors: ["#22d3ee"] },
+    temp: { label: "Temperature", dataKey: ["Temp", "Feels"], colors: ["#f97316", "#60a5fa"], unit: tempUnit, gradId: "tempGrad" },
+    humidity: { label: "Humidity", dataKey: ["Humidity"], colors: ["#60a5fa"], unit: "%", gradId: "blueGrad" },
+    pop: { label: "Rain Chance", dataKey: ["Pop"], colors: ["#38bdf8"], unit: "%", gradId: "cyanGrad" },
+    wind: { label: "Wind", dataKey: ["Wind"], colors: ["#22d3ee"], unit: " m/s", gradId: "cyanGrad2" },
   };
 
   const active = charts[activeChart];
 
+  const currentValue = chartData[0]?.[active.dataKey[0]] ?? 0;
+  const allValues = chartData.map((d) => d[active.dataKey[0]]);
+  const minVal = Math.min(...allValues);
+  const maxVal = Math.max(...allValues);
+
   return (
     <div className="w-full glass rounded-2xl p-5 animate-slide-up" style={{ animationDelay: "0.25s" }}>
+      {/* header: title + current value */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider">Weather Trends</h3>
+        <div>
+          <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider">Weather Trends</h3>
+          <div className="flex items-baseline gap-1.5 mt-1">
+            <span className="text-white text-2xl font-light">{currentValue}</span>
+            <span className="text-white/30 text-sm">{active.unit}</span>
+            {activeChart === "temp" && (
+              <span className="text-white/20 text-[11px] ml-1">L:{minVal}° H:{maxVal}°</span>
+            )}
+          </div>
+        </div>
+
+        {/* tabs */}
         <div className="flex gap-1">
           {Object.entries(charts).map(([key, chart]) => (
             <button
@@ -60,7 +81,8 @@ const WeatherCharts = ({ hourly }) => {
         </div>
       </div>
 
-      <div className="h-48">
+      {/* chart */}
+      <div className="h-52">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
             <defs>
@@ -76,9 +98,13 @@ const WeatherCharts = ({ hourly }) => {
                 <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.3} />
                 <stop offset="100%" stopColor="#38bdf8" stopOpacity={0} />
               </linearGradient>
+              <linearGradient id="cyanGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#22d3ee" stopOpacity={0} />
+              </linearGradient>
             </defs>
             <XAxis dataKey="time" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.3)" }} axisLine={false} tickLine={false} domain={activeChart === "pop" ? [0, 100] : activeChart === "humidity" ? [0, 100] : ["auto", "auto"]} />
             <Tooltip content={<CustomTooltip />} />
             {active.dataKey.map((key, i) => (
               <Area
@@ -86,15 +112,38 @@ const WeatherCharts = ({ hourly }) => {
                 type="monotone"
                 dataKey={key}
                 stroke={active.colors[i]}
-                fill={active.colors[i] === "#f97316" ? "url(#tempGrad)" : "url(#blueGrad)"}
+                fill={`url(#${active.gradId})`}
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4, fill: active.colors[i], strokeWidth: 0 }}
               />
             ))}
+            {/* current hour dot on first line */}
+            <ReferenceDot
+              x={chartData[0]?.time}
+              y={chartData[0]?.[active.dataKey[0]]}
+              r={4}
+              fill={active.colors[0]}
+              stroke="white"
+              strokeWidth={2}
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>
+
+      {/* legend for temp chart */}
+      {activeChart === "temp" && (
+        <div className="flex items-center justify-center gap-4 mt-2">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-0.5 rounded-full bg-orange-400" />
+            <span className="text-white/30 text-[10px]">Actual</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-0.5 rounded-full bg-blue-400" />
+            <span className="text-white/30 text-[10px]">Feels Like</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

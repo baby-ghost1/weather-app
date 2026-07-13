@@ -6,16 +6,20 @@ const api = axios.create({
 });
 
 let appCache = null;
+let appCacheKey = "";
 let appCachePromise = null;
 
 export const getAppInit = (city, lat, lon, units) => {
-  if (appCache) return Promise.resolve(appCache);
+  const key = `${city || ""}_${lat || ""}_${lon || ""}_${units || ""}`;
+  if (appCache && appCacheKey === key) return Promise.resolve(appCache);
+  appCache = null;
   if (appCachePromise) return appCachePromise;
   const params = { city, lat, lon, units };
   appCachePromise = api.post("/app/init", params).then(({ data }) => {
     if (data.success) {
       appCache = data.data;
-      setTimeout(() => { appCache = null; }, 10 * 60 * 1000);
+      appCacheKey = key;
+      setTimeout(() => { appCache = null; appCacheKey = ""; }, 10 * 60 * 1000);
     }
     return appCache;
   }).finally(() => { appCachePromise = null; });
