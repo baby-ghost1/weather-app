@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { TbFlower } from "react-icons/tb";
+import { FiAlertTriangle, FiInfo } from "react-icons/fi";
 
 const getPollenRisk = (temp, humidity, windSpeed, main, month) => {
   let risk = 0;
@@ -25,39 +26,85 @@ const getPollenCategory = (risk) => {
   return { label: "Low", color: "#00e400", advice: "Low pollen count. Safe for outdoor activities." };
 };
 
+const getPollenTypes = (risk, month) => {
+  const tree = month >= 2 && month <= 5 ? Math.min(risk + 10, 100) : Math.max(risk - 20, 0);
+  const grass = month >= 4 && month <= 8 ? Math.min(risk + 5, 100) : Math.max(risk - 15, 0);
+  const weed = month >= 8 && month <= 10 ? Math.min(risk + 8, 100) : Math.max(risk - 25, 0);
+  return [
+    { name: "Tree", value: tree, color: "#4ade80" },
+    { name: "Grass", value: grass, color: "#facc15" },
+    { name: "Weed", value: weed, color: "#f97316" },
+  ];
+};
+
 const PollenCount = ({ weather }) => {
   const data = useMemo(() => {
     if (!weather) return null;
     const currentMonth = new Date().getMonth() + 1;
     const risk = getPollenRisk(weather.temp, weather.humidity, weather.windSpeed, weather.main, currentMonth);
-    const { label, color, advice } = getPollenCategory(risk);
-    return { risk, label, color, advice };
+    const category = getPollenCategory(risk);
+    const types = getPollenTypes(risk, currentMonth);
+    return { risk, category, types };
   }, [weather]);
 
   if (!weather || !data) return null;
 
-  const { risk, label, color, advice } = data;
+  const { risk, category, types } = data;
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
-      <div className="flex items-center justify-between mb-3">
+      {/* header */}
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider">Pollen Count</h3>
-        <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg text-black" style={{ backgroundColor: color }}>
-          {label}
+        <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg text-black" style={{ backgroundColor: category.color }}>
+          {category.label}
         </span>
       </div>
 
-      <div className="flex items-center gap-3 mb-3">
-        <div className="text-3xl"><TbFlower size={32} className="text-white" /></div>
+      {/* ring + advice */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative w-20 h-20 shrink-0">
+          <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={category.color} strokeWidth="2.5" strokeDasharray={`${risk}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <TbFlower className="text-sm mb-0.5" style={{ color: category.color }} />
+            <span className="text-white text-xl font-bold leading-none">{risk}</span>
+            <span className="text-white/30 text-[8px]">/100</span>
+          </div>
+        </div>
         <div>
-          <p className="text-white text-lg font-medium">{risk}/100</p>
-          <p className="text-white/40 text-xs">{advice}</p>
+          <p className="text-white text-sm font-medium mb-1">{category.advice}</p>
         </div>
       </div>
 
-      <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-4">
-        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${risk}%`, backgroundColor: color }} />
+      {/* pollen type breakdown */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {types.map((t) => (
+          <div key={t.name} className="glass rounded-lg p-2.5 text-center">
+            <div className="w-full h-1.5 rounded-full bg-white/10 mb-2 overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-700" style={{ width: `${t.value}%`, backgroundColor: t.color }} />
+            </div>
+            <p className="text-white text-xs font-medium">{t.value}</p>
+            <p className="text-white/30 text-[10px]">{t.name}</p>
+          </div>
+        ))}
       </div>
+
+      {/* tip */}
+      {risk >= 50 && (
+        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-orange-400/[0.06]">
+          <FiAlertTriangle className="text-orange-400/50 text-xs shrink-0 mt-0.5" />
+          <p className="text-orange-300/50 text-[11px] leading-relaxed">Wear a mask outdoors. Shower after being outside to remove pollen.</p>
+        </div>
+      )}
+      {risk < 25 && (
+        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-green-400/[0.06]">
+          <FiInfo className="text-green-400/50 text-xs shrink-0 mt-0.5" />
+          <p className="text-green-300/50 text-[11px] leading-relaxed">Great day for outdoor activities. No allergy concerns.</p>
+        </div>
+      )}
     </div>
   );
 };
