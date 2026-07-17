@@ -23,7 +23,10 @@ const CarbonFootprint = ({ weather }) => {
   useEffect(() => {
     if (!weather) return;
     setLoading(true);
-    getCarbonData(weather, { distance })
+    const vehicleIds = ["car-petrol", "car-diesel", "bus", "train", "flight", "bike", "walking"];
+    const distances = {};
+    vehicleIds.forEach((id) => { distances[id] = distance; });
+    getCarbonData(weather, distances)
       .then((res) => { setTransportModes(res.transport || []); setLoading(false); })
       .catch(() => { setError("Failed to load carbon data"); setLoading(false); });
   }, [weather, distance]);
@@ -33,7 +36,8 @@ const CarbonFootprint = ({ weather }) => {
   if (error) return <div className="glass rounded-2xl p-5 hover-lift animate-scale-in"><p className="text-red-400 text-xs">{error}</p></div>;
 
   const maxCO2 = Math.max(...transportModes.map((t) => t.co2), 1);
-  const greenest = transportModes.reduce((min, t) => t.co2 < min.co2 ? t : min, transportModes[0] || { co2: Infinity });
+  const totalCO2 = transportModes.reduce((sum, t) => sum + t.co2, 0);
+  const greenest = transportModes.filter((t) => t.co2 > 0).reduce((min, t) => t.co2 < min.co2 ? t : min, transportModes[0] || { co2: Infinity, name: "—" });
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
@@ -50,17 +54,17 @@ const CarbonFootprint = ({ weather }) => {
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
             <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeDasharray={`${Math.min((1 - (greenest.co2 / Math.max(maxCO2, 1))) * 100, 100)}, 100`} strokeLinecap="round" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeDasharray={`${Math.min((totalCO2 / Math.max(maxCO2 * transportModes.length, 1)) * 100, 100)}, 100`} strokeLinecap="round" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <FiGlobe className="text-green-400 text-xs mb-0.5" />
-            <span className="text-white text-sm font-bold leading-none">{greenest.co2}</span>
+            <span className="text-white text-sm font-bold leading-none">{totalCO2}</span>
             <span className="text-white/30 text-[8px]">kg CO₂</span>
           </div>
         </div>
         <div>
           <p className="text-white text-lg font-medium">Travel Emissions</p>
-          <p className="text-white/40 text-[11px]">Greenest: {greenest.name}</p>
+          <p className="text-white/40 text-[11px]">Greenest: {greenest.name} ({greenest.co2} kg)</p>
         </div>
       </div>
 

@@ -65,6 +65,7 @@ import WeatherSounds from "./components/WeatherSounds";
 import UnitConverter from "./components/UnitConverter";
 import WeatherFacts from "./components/WeatherFacts";
 import ScrollToTop from "./components/ScrollToTop";
+import Footer from "./components/Footer";
 import { useWeather } from "./hooks/useWeather";
 
 const WeatherApp = () => {
@@ -311,6 +312,7 @@ const WeatherApp = () => {
             </div>
           )}
           <SearchHistory onSelectCity={handleSearch} />
+          <Footer />
         </footer>
       </div>
 

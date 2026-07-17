@@ -4,7 +4,7 @@ import { getContent } from "../services/api";
 
 const ThemeSwitcher = () => {
   const [themes, setThemes] = useState([]);
-  const [activeTheme, setActiveTheme] = useState("Default");
+  const [activeTheme, setActiveTheme] = useState("Ocean");
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -18,9 +18,9 @@ const ThemeSwitcher = () => {
     const stored = localStorage.getItem("weather_theme");
     if (stored) {
       setActiveTheme(stored);
-      applyTheme(stored);
     }
-  }, []);
+    applyTheme(stored || "Ocean");
+  }, [themes]);
 
   const applyTheme = (name) => {
     const theme = themes.find((t) => t.name === name);

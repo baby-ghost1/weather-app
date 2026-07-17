@@ -144,7 +144,8 @@ router.post("/carbon", (req, res) => {
     if (!weather) return res.status(400).json({ success: false, message: "Weather data required" });
     const { temp, windSpeed, main } = weather;
     const result = getCarbonFootprint(["car-petrol","car-diesel","bus","train","flight","bike","walking"], distances || {}, temp, windSpeed, main);
-    res.json({ success: true, data: { ...result, transport: result.details } });
+    const transport = result.details.map((d) => ({ name: d.label, co2: d.co2, distance: d.distance, trees: Math.round(d.co2 / 21) }));
+    res.json({ success: true, data: { ...result, transport } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
