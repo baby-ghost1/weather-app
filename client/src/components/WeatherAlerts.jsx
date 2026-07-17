@@ -78,7 +78,7 @@ const WeatherAlerts = ({ weather }) => {
     <div className="w-full max-w-2xl mx-auto space-y-2 animate-slide-down">
       {alerts.map((alert, i) =>
         dismissed.has(i) ? null : (
-          <div key={i} className={`rounded-xl px-4 py-3 flex items-center gap-3 border ${typeStyles[alert.type].bg} ${typeStyles[alert.type].border}`}>
+          <div key={alert.message} className={`rounded-xl px-4 py-3 flex items-center gap-3 border ${typeStyles[alert.type].bg} ${typeStyles[alert.type].border}`}>
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${typeStyles[alert.type].iconBg}`}>
               {alert.type === "info" ? (
                 <FiInfo className={typeStyles[alert.type].icon} />

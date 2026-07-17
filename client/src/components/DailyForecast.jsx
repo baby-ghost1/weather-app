@@ -53,7 +53,7 @@ const DailyForecast = ({ daily }) => {
           const isHighlighted = isToday || isTomorrow;
 
           return (
-            <div key={i} className={`px-4 py-3.5 ${i !== daily.length - 1 ? "border-b border-white/5" : ""} ${isHighlighted ? "bg-white/[0.04]" : "hover:bg-white/[0.03]"} transition-colors`}>
+            <div key={day.date} className={`px-4 py-3.5 ${i !== daily.length - 1 ? "border-b border-white/5" : ""} ${isHighlighted ? "bg-white/[0.04]" : "hover:bg-white/[0.03]"} transition-colors`}>
               {/* top row: day + icon + rain */}
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-24 shrink-0">

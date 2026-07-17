@@ -66,8 +66,8 @@ const WorkoutScheduler = ({ weather }) => {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke={color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-white text-xl font-bold leading-none">{score}</span>
@@ -83,7 +83,7 @@ const WorkoutScheduler = ({ weather }) => {
       {issues.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4">
           {issues.map((issue, i) => (
-            <span key={i} className="text-[10px] px-2 py-1 rounded-full bg-orange-400/10 text-orange-300">
+            <span key={issue} className="text-[10px] px-2 py-1 rounded-full bg-orange-400/10 text-orange-300">
               {issue}
             </span>
           ))}
@@ -94,7 +94,7 @@ const WorkoutScheduler = ({ weather }) => {
         {recommendations.map((name, i) => {
           const act = activityIcons[name] || { icon: <FiActivity size={16} className="text-white" />, bg: "bg-white/10" };
           return (
-            <div key={i} className="flex items-center gap-2.5 p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] transition-colors">
+            <div key={name} className="flex items-center gap-2.5 p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] transition-colors">
               <span className={`w-8 h-8 flex items-center justify-center rounded-lg ${act.bg}`}>
                 {act.icon}
               </span>

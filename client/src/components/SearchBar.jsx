@@ -52,25 +52,25 @@ const SearchBar = ({ onSearch, onLocation, loading }) => {
           { headers: { "User-Agent": "WeatherFlow/1.0" } }
         );
         const data = await res.json();
-        const places = data
-          .filter((d) => d.type === "city" || d.type === "town" || d.type === "village" || d.type === "hamlet" || d.type === "administrative" || d.class === "place")
-          .map((d) => {
-            const addr = d.address || {};
-            const parts = [];
-            if (addr.state) parts.push(addr.state);
-            if (addr.country) parts.push(addr.country);
-            return {
-              name: d.display_name.split(",")[0],
-              fullName: d.display_name,
-              state: addr.state || "",
-              country: addr.country || "",
-              country_code: addr.country_code?.toUpperCase() || "",
-              display: parts.join(", "),
-              lat: parseFloat(d.lat),
-              lon: parseFloat(d.lon),
-              type: d.type,
-            };
+        const places = data.reduce((acc, d) => {
+          if (!(d.type === "city" || d.type === "town" || d.type === "village" || d.type === "hamlet" || d.type === "administrative" || d.class === "place")) return acc;
+          const addr = d.address || {};
+          const parts = [];
+          if (addr.state) parts.push(addr.state);
+          if (addr.country) parts.push(addr.country);
+          acc.push({
+            name: d.display_name.split(",")[0],
+            fullName: d.display_name,
+            state: addr.state || "",
+            country: addr.country || "",
+            country_code: addr.country_code?.toUpperCase() || "",
+            display: parts.join(", "),
+            lat: parseFloat(d.lat),
+            lon: parseFloat(d.lon),
+            type: d.type,
           });
+          return acc;
+        }, []);
         setSuggestions(places.slice(0, 6));
       } catch {
         setSuggestions([]);
@@ -143,7 +143,7 @@ const SearchBar = ({ onSearch, onLocation, loading }) => {
         <div className="absolute w-full mt-2 glass-strong rounded-xl shadow-2xl z-50 overflow-hidden animate-slide-down max-h-80 overflow-y-auto">
           {suggestions.map((s, i) => (
             <button
-              key={i}
+              key={s.fullName}
               onMouseDown={() => handleSuggestionClick(s)}
               className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/10 transition-colors text-left border-b border-white/5 last:border-b-0"
             >

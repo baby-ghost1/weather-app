@@ -11,6 +11,15 @@ const getLevel = (aqi) => {
   return "Hazardous";
 };
 
+const getColor = (aqi) => {
+  if (aqi <= 50) return "#00e400";
+  if (aqi <= 100) return "#ffff00";
+  if (aqi <= 150) return "#ff7e00";
+  if (aqi <= 200) return "#ff0000";
+  if (aqi <= 300) return "#8f3f97";
+  return "#7e0023";
+};
+
 const AQIForecast = ({ lat, lon }) => {
   const [forecast, setForecast] = useState(null);
   const [error, setError] = useState("");
@@ -54,15 +63,6 @@ const AQIForecast = ({ lat, lon }) => {
   if (loading) return <div className="glass rounded-2xl p-5 animate-scale-in"><div className="shimmer h-4 w-24 rounded mb-3" /><div className="flex items-end gap-1 h-24 mb-2"><div className="shimmer flex-1 h-16 rounded-t-md" /><div className="shimmer flex-1 h-12 rounded-t-md" /><div className="shimmer flex-1 h-20 rounded-t-md" /><div className="shimmer flex-1 h-10 rounded-t-md" /><div className="shimmer flex-1 h-14 rounded-t-md" /></div></div>;
   if (error) return <div className="glass rounded-2xl p-5 animate-scale-in"><p className="text-red-300 text-xs">{error}</p></div>;
   if (!forecast) return null;
-
-  const getColor = (aqi) => {
-    if (aqi <= 50) return "#00e400";
-    if (aqi <= 100) return "#ffff00";
-    if (aqi <= 150) return "#ff7e00";
-    if (aqi <= 200) return "#ff0000";
-    if (aqi <= 300) return "#8f3f97";
-    return "#7e0023";
-  };
 
   const allValues = [forecast.current, ...forecast.predicted.map((p) => p.aqi)];
   const maxVal = Math.max(...allValues);

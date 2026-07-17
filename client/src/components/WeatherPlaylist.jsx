@@ -37,7 +37,7 @@ const WeatherPlaylist = ({ weather }) => {
 
       <div className="space-y-1.5">
         {songs.slice(0, showAll ? 5 : 3).map((song, i) => (
-          <div key={i} className="flex items-center gap-2 p-1.5 rounded-lg bg-white/5">
+          <div key={song.title} className="flex items-center gap-2 p-1.5 rounded-lg bg-white/5">
             <span className="text-white/20 text-[11px] w-4">{i + 1}</span>
             <span className="text-white/60 text-xs">{song.title} — {song.artist}</span>
           </div>

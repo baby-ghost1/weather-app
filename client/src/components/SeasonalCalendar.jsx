@@ -49,14 +49,13 @@ const SeasonalCalendar = () => {
   const season = getCurrentSeason();
   const now = new Date();
 
-  const processed = allEvents
-    .map((e) => {
-      const eventDate = parseEventDate(e.date);
-      const daysUntil = eventDate ? Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24)) : 0;
-      return { ...e, eventDate, daysUntil, isPast: eventDate ? eventDate < now : false };
-    })
-    .filter((e) => !e.isPast)
-    .slice(0, 5);
+  const processed = allEvents.reduce((acc, e) => {
+    const eventDate = parseEventDate(e.date);
+    const daysUntil = eventDate ? Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24)) : 0;
+    const isPast = eventDate ? eventDate < now : false;
+    if (!isPast && acc.length < 5) acc.push({ ...e, eventDate, daysUntil, isPast });
+    return acc;
+  }, []);
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
@@ -71,7 +70,7 @@ const SeasonalCalendar = () => {
 
       <div className="space-y-2">
         {processed.map((event, i) => (
-          <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-white/5">
+          <div key={event.name} className="flex items-center gap-3 p-2 rounded-lg bg-white/5">
             <span className="text-lg">{event.icon || getSeasonIcon(event.type)}</span>
             <div className="flex-1">
               <p className="text-white/70 text-xs">{event.name}</p>

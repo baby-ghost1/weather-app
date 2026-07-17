@@ -49,7 +49,7 @@ const WeatherFacts = () => {
           const globalIndex = startIndex + i;
           const isOpen = openIndex === globalIndex;
           return (
-            <div key={globalIndex} className={`rounded-xl overflow-hidden transition-all ${isOpen ? "bg-white/[0.06]" : "bg-white/[0.02]"}`}>
+            <div key={fact.title} className={`rounded-xl overflow-hidden transition-all ${isOpen ? "bg-white/[0.06]" : "bg-white/[0.02]"}`}>
               <button
                 onClick={() => setOpenIndex(isOpen ? null : globalIndex)}
                 className="w-full flex items-center gap-2.5 p-3 text-left transition-all hover:bg-white/[0.04]"

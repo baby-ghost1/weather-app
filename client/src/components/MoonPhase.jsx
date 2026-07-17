@@ -61,8 +61,8 @@ const MoonPhase = () => {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#c4b5fd" strokeWidth="2.5" strokeDasharray={`${moonData.illumination}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="#c4b5fd" strokeWidth="2.5" strokeDasharray={`${moonData.illumination}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center text-3xl">{moonData.emoji}</div>
         </div>

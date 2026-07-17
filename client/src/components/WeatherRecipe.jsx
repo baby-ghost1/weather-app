@@ -37,7 +37,7 @@ const WeatherRecipe = ({ weather }) => {
 
       <div className="space-y-1.5">
         {recipeList.map((r, i) => (
-          <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
+          <div key={r.name} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
             <span className="text-lg">{r.icon}</span>
             <div className="flex-1 min-w-0">
               <p className="text-white/80 text-xs">{r.name}</p>

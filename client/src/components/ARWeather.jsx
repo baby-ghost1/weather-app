@@ -4,6 +4,19 @@ import { WiDaySunny, WiRain, WiDayRain, WiFog, WiThunderstorm } from "react-icon
 import { TbSnowflake } from "react-icons/tb";
 import { useUnit } from "../context/UnitContext";
 
+const weatherIconMap = {
+  Clear: <WiDaySunny size={22} className="text-yellow-300" />,
+  Clouds: <WiDaySunny size={22} className="text-gray-300" />,
+  Rain: <WiRain size={22} className="text-blue-300" />,
+  Snow: <TbSnowflake size={20} className="text-cyan-200" />,
+  Thunderstorm: <WiThunderstorm size={22} className="text-yellow-400" />,
+  Drizzle: <WiDayRain size={22} className="text-blue-200" />,
+  Haze: <WiFog size={22} className="text-gray-300" />,
+  Mist: <WiFog size={22} className="text-gray-300" />,
+};
+
+const getWeatherIcon = (main) => weatherIconMap[main] || <WiDaySunny size={22} className="text-yellow-300" />;
+
 const ARWeather = ({ weather }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [stream, setStream] = useState(null);
@@ -42,20 +55,6 @@ const ARWeather = ({ weather }) => {
   }, [stream]);
 
   if (!weather) return null;
-
-  const getWeatherIcon = (main) => {
-    const map = {
-      Clear: <WiDaySunny size={22} className="text-yellow-300" />,
-      Clouds: <WiDaySunny size={22} className="text-gray-300" />,
-      Rain: <WiRain size={22} className="text-blue-300" />,
-      Snow: <TbSnowflake size={20} className="text-cyan-200" />,
-      Thunderstorm: <WiThunderstorm size={22} className="text-yellow-400" />,
-      Drizzle: <WiDayRain size={22} className="text-blue-200" />,
-      Haze: <WiFog size={22} className="text-gray-300" />,
-      Mist: <WiFog size={22} className="text-gray-300" />,
-    };
-    return map[main] || <WiDaySunny size={22} className="text-yellow-300" />;
-  };
 
   return (
     <>

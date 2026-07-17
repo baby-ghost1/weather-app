@@ -44,7 +44,7 @@ const WeatherDetails = ({ weather }) => {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-slide-up">
-      {items.map((item, i) => <DetailItem key={i} {...item} />)}
+      {items.map((item, i) => <DetailItem key={item.label} {...item} />)}
     </div>
   );
 };

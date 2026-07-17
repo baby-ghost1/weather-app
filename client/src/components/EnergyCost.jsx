@@ -27,6 +27,21 @@ const tips = [
   { text: "Use natural light during day — reduces lighting cost to zero.", icon: "☀️" },
 ];
 
+const getRingColor = (cost) => {
+  if (cost <= 50) return "#34d399";
+  if (cost <= 100) return "#fbbf24";
+  if (cost <= 200) return "#f97316";
+  if (cost <= 300) return "#f43f5e";
+  return "#dc2626";
+};
+
+const getCostLabel = (cost) => {
+  if (cost <= 50) return "Low";
+  if (cost <= 100) return "Moderate";
+  if (cost <= 200) return "High";
+  return "Very High";
+};
+
 const EnergyCost = ({ weather }) => {
   const [hours, setHours] = useState(() => {
     const defaults = {};
@@ -53,21 +68,6 @@ const EnergyCost = ({ weather }) => {
 
   const maxCost = Math.max(...calculations.breakdown.map((b) => b.cost), 1);
 
-  const getRingColor = (cost) => {
-    if (cost <= 50) return "#34d399";
-    if (cost <= 100) return "#fbbf24";
-    if (cost <= 200) return "#f97316";
-    if (cost <= 300) return "#f43f5e";
-    return "#dc2626";
-  };
-
-  const getCostLabel = (cost) => {
-    if (cost <= 50) return "Low";
-    if (cost <= 100) return "Moderate";
-    if (cost <= 200) return "High";
-    return "Very High";
-  };
-
   const ringColor = getRingColor(calculations.totalDaily);
 
   return (
@@ -92,8 +92,8 @@ const EnergyCost = ({ weather }) => {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={ringColor} strokeWidth="2.5" strokeDasharray={`${Math.min((calculations.totalDaily / 500) * 100, 100)}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke={ringColor} strokeWidth="2.5" strokeDasharray={`${Math.min((calculations.totalDaily / 500) * 100, 100)}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <FiZap className="text-xs mb-0.5" style={{ color: ringColor }} />
@@ -115,39 +115,43 @@ const EnergyCost = ({ weather }) => {
 
       {/* appliances with sliders */}
       <div className="space-y-3 mb-4">
-        {calculations.breakdown.filter((a) => a.hours > 0 || a.wattage >= 500).map((a) => (
-          <div key={a.id}>
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs">{a.icon}</span>
-                <span className="text-white/60 text-[11px]">{a.name}</span>
-                <span className="text-white/20 text-[9px]">({a.wattage}W)</span>
+        {calculations.breakdown.reduce((acc, a) => {
+          if (!(a.hours > 0 || a.wattage >= 500)) return acc;
+          acc.push(
+            <div key={a.id}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs">{a.icon}</span>
+                  <span className="text-white/60 text-[11px]">{a.name}</span>
+                  <span className="text-white/20 text-[9px]">({a.wattage}W)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-white/40 text-[11px]">{a.hours}h</span>
+                  <span className="text-[10px] font-medium" style={{ color: a.cost > 0 ? a.color : "rgba(255,255,255,0.2)" }}>
+                    {a.cost > 0 ? `₹${a.cost}` : "—"}
+                  </span>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-white/40 text-[11px]">{a.hours}h</span>
-                <span className="text-[10px] font-medium" style={{ color: a.cost > 0 ? a.color : "rgba(255,255,255,0.2)" }}>
-                  {a.cost > 0 ? `₹${a.cost}` : "—"}
-                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="24"
+                  value={hours[a.id] || 0}
+                  onChange={(e) => setHours((prev) => ({ ...prev, [a.id]: parseInt(e.target.value) }))}
+                  className="flex-1 h-1 rounded-full appearance-none bg-white/10 cursor-pointer"
+                  style={{ accentColor: a.color }}
+                />
+                {a.hours > 0 && (
+                  <div className="w-12 h-1 rounded-full bg-white/10 overflow-hidden shrink-0">
+                    <div className="h-full rounded-full transition-all" style={{ width: `${(a.units / Math.max(calculations.totalUnits, 1)) * 100}%`, backgroundColor: a.color }} />
+                  </div>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min="0"
-                max="24"
-                value={hours[a.id] || 0}
-                onChange={(e) => setHours((prev) => ({ ...prev, [a.id]: parseInt(e.target.value) }))}
-                className="flex-1 h-1 rounded-full appearance-none bg-white/10 cursor-pointer"
-                style={{ accentColor: a.color }}
-              />
-              {a.hours > 0 && (
-                <div className="w-12 h-1 rounded-full bg-white/10 overflow-hidden shrink-0">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${(a.units / Math.max(calculations.totalUnits, 1)) * 100}%`, backgroundColor: a.color }} />
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+          return acc;
+        }, [])}
       </div>
 
       {/* cost breakdown bar */}
@@ -155,17 +159,21 @@ const EnergyCost = ({ weather }) => {
         <div className="mb-4">
           <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1.5">Cost Breakdown</p>
           <div className="flex h-2 rounded-full overflow-hidden bg-white/10">
-            {calculations.breakdown.filter((a) => a.cost > 0).map((a) => (
-              <div key={a.id} className="h-full transition-all" style={{ width: `${(a.cost / calculations.totalDaily) * 100}%`, backgroundColor: a.color }} />
-            ))}
+            {calculations.breakdown.reduce((acc, a) => {
+              if (a.cost > 0) acc.push(<div key={a.id} className="h-full transition-all" style={{ width: `${(a.cost / calculations.totalDaily) * 100}%`, backgroundColor: a.color }} />);
+              return acc;
+            }, [])}
           </div>
           <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5">
-            {calculations.breakdown.filter((a) => a.cost > 0).map((a) => (
-              <div key={a.id} className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: a.color }} />
-                <span className="text-white/25 text-[9px]">{a.name} ₹{a.cost}</span>
-              </div>
-            ))}
+            {calculations.breakdown.reduce((acc, a) => {
+              if (a.cost > 0) acc.push(
+                <div key={a.id} className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: a.color }} />
+                  <span className="text-white/25 text-[9px]">{a.name} ₹{a.cost}</span>
+                </div>
+              );
+              return acc;
+            }, [])}
           </div>
         </div>
       )}
@@ -178,7 +186,7 @@ const EnergyCost = ({ weather }) => {
         </div>
         <div className="grid grid-cols-2 gap-1.5">
           {tips.slice(0, 4).map((tip, i) => (
-            <div key={i} className="flex items-start gap-1.5 p-1.5 rounded-lg bg-white/[0.02]">
+            <div key={tip.text} className="flex items-start gap-1.5 p-1.5 rounded-lg bg-white/[0.02]">
               <span className="text-[10px] shrink-0 mt-0.5">{tip.icon}</span>
               <span className="text-white/30 text-[9px] leading-relaxed">{tip.text}</span>
             </div>

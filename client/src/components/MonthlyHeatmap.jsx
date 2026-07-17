@@ -46,7 +46,7 @@ const MonthlyHeatmap = ({ weather }) => {
 
       <div className="grid grid-cols-4 gap-2">
         {months.map((m, i) => (
-          <div key={i} className={`rounded-xl p-2.5 text-center transition-all ${m.isCurrent ? "ring-1 ring-white/20 bg-white/[0.06]" : "bg-white/[0.02]"}`}>
+          <div key={m.name} className={`rounded-xl p-2.5 text-center transition-all ${m.isCurrent ? "ring-1 ring-white/20 bg-white/[0.06]" : "bg-white/[0.02]"}`}>
             <p className={`text-[11px] font-medium mb-1.5 ${m.isCurrent ? "text-white" : "text-white/40"}`}>{m.name}</p>
             {/* temp bar */}
             <div className="w-full h-2 rounded-full bg-white/[0.06] mb-1.5 overflow-hidden">

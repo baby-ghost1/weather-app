@@ -167,7 +167,7 @@ const UVIndexCard = ({ lat, lon, sunrise, sunset }) => {
       {!night && (
         <div className="flex gap-2 mb-3">
           {hourly.map((h, i) => (
-            <div key={i} className="flex-1 text-center py-2 rounded-lg bg-white/[0.03]">
+            <div key={h.time} className="flex-1 text-center py-2 rounded-lg bg-white/[0.03]">
               <p className="text-white/30 text-[10px] mb-1">{h.time}</p>
               <p className="text-xs font-medium" style={{ color: h.color }}>{h.uv}</p>
               <div className="w-full h-1 rounded-full bg-white/[0.06] mt-1.5 overflow-hidden">

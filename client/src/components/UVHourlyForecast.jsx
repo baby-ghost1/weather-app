@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FiSun } from "react-icons/fi";
+import { getUVIndex } from "../services/api";
 
 const getUVLevel = (v) => {
   if (v <= 2) return { label: "Low", color: "#00e400", advice: "No protection needed" };
@@ -10,9 +11,17 @@ const getUVLevel = (v) => {
 };
 
 const UVHourlyForecast = ({ weather }) => {
+  const [uvValue, setUvValue] = useState(null);
+
+  useEffect(() => {
+    if (!weather?.lat || !weather?.lon) return;
+    getUVIndex(weather.lat, weather.lon)
+      .then((res) => { if (res.success) setUvValue(res.data.value); })
+      .catch(() => {});
+  }, [weather?.lat, weather?.lon]);
+
   const data = useMemo(() => {
-    if (!weather) return null;
-    const current = weather.uv || 0;
+    const current = uvValue ?? 0;
     const hours = [];
     for (let i = 0; i < 8; i++) {
       const h = i * 3;
@@ -26,10 +35,10 @@ const UVHourlyForecast = ({ weather }) => {
       hours.push({ hour: h, uv: Math.round(estUv * 10) / 10, level: lvl, color: col });
     }
     return { current, hours };
-  }, [weather]);
+  }, [uvValue]);
 
   if (!weather) return null;
-  if (!data) return null;
+  if (uvValue === null) return null;
 
   const { current, hours } = data;
   const currentUV = getUVLevel(current);
@@ -49,8 +58,8 @@ const UVHourlyForecast = ({ weather }) => {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={currentUV.color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke={currentUV.color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <FiSun className="text-xs mb-0.5" style={{ color: currentUV.color }} />
@@ -71,7 +80,7 @@ const UVHourlyForecast = ({ weather }) => {
       {/* hourly bars */}
       <div className="flex gap-1.5 overflow-x-auto pb-1">
         {hours.map((h, i) => (
-          <div key={i} className="flex flex-col items-center min-w-[42px] flex-1 p-2 rounded-lg bg-white/5">
+          <div key={h.hour} className="flex flex-col items-center min-w-[42px] flex-1 p-2 rounded-lg bg-white/5">
             <span className="text-[10px] text-white/30 mb-1">{String(h.hour).padStart(2, "0")}:00</span>
             <div className="w-full rounded-full mb-1.5 transition-all duration-500" style={{ height: `${Math.max(h.uv * 5, 4)}px`, backgroundColor: h.color, boxShadow: `0 0 6px ${h.color}30` }} />
             <span className="text-[11px] font-medium" style={{ color: h.color }}>{h.uv}</span>

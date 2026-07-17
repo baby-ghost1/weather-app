@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { FiAlertTriangle, FiExternalLink, FiActivity } from "react-icons/fi";
 
+const colorMap = { major: "#ef4444", moderate: "#f97316", minor: "#facc15" };
+const borderMap = { major: "border-red-400/30", moderate: "border-orange-400/30", minor: "border-yellow-400/20" };
+const bgMap = { major: "bg-red-400/[0.06]", moderate: "bg-orange-400/[0.06]", minor: "bg-yellow-400/[0.06]" };
+
 const EarthquakeAlerts = ({ lat, lon }) => {
   const [earthquakes, setEarthquakes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,10 +35,6 @@ const EarthquakeAlerts = ({ lat, lon }) => {
   if (error) return <div className="glass rounded-2xl p-5 animate-scale-in"><p className="text-red-300 text-xs">{error}</p></div>;
   if (loading) return <div className="glass rounded-2xl p-5 animate-scale-in"><div className="shimmer h-4 w-40 rounded mb-3" /><div className="shimmer h-12 w-full rounded mb-2" /><div className="shimmer h-12 w-full rounded" /></div>;
   if (earthquakes.length === 0) return null;
-
-  const colorMap = { major: "#ef4444", moderate: "#f97316", minor: "#facc15" };
-  const borderMap = { major: "border-red-400/30", moderate: "border-orange-400/30", minor: "border-yellow-400/20" };
-  const bgMap = { major: "bg-red-400/[0.06]", moderate: "bg-orange-400/[0.06]", minor: "bg-yellow-400/[0.06]" };
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">

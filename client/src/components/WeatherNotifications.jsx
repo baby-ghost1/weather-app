@@ -71,7 +71,7 @@ const WeatherNotifications = ({ weather }) => {
       ) : enabled && alerts.length > 0 ? (
         <div className="space-y-1.5">
           {alerts.map((a, i) => (
-            <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-white/5">
+            <div key={a.text} className="flex items-start gap-2 p-2 rounded-lg bg-white/5">
               <FiAlertTriangle className={`text-sm shrink-0 mt-0.5 ${a.type === "warning" ? "text-red-400/70" : "text-orange-400/60"}`} />
               <p className="text-white/50 text-[11px] leading-relaxed">{a.text}</p>
             </div>

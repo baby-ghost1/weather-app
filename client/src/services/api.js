@@ -95,12 +95,6 @@ export const getUVIndex = async (lat, lon) => {
   return data;
 };
 
-export const getAllIndices = async (weather, aqi, uv, distances) => {
-  if (appCache?.indices) return appCache.indices;
-  const { data } = await api.post("/indices/all", { weather, aqi, uv, distances });
-  return data.data;
-};
-
 export const getCarbonData = async (weather, distances) => {
   const { data } = await api.post("/indices/carbon", { weather, distances });
   return data.data;

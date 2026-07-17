@@ -7,6 +7,13 @@ const quadraticBezier = (t, p0, p1, p2) => {
   return mt * mt * p0 + 2 * mt * t * p1 + t * t * p2;
 };
 
+const formatHours = (h) => {
+  const abs = Math.abs(h);
+  const hrs = Math.floor(abs);
+  const mins = Math.round((abs - hrs) * 60);
+  return `${hrs}h ${mins}m`;
+};
+
 const SunPosition = ({ weather }) => {
   const sunData = useMemo(() => {
     if (!weather?.sunrise || !weather?.sunset) return null;
@@ -29,13 +36,6 @@ const SunPosition = ({ weather }) => {
   }, [weather]);
 
   if (!sunData) return null;
-
-  const formatHours = (h) => {
-    const abs = Math.abs(h);
-    const hrs = Math.floor(abs);
-    const mins = Math.round((abs - hrs) * 60);
-    return `${hrs}h ${mins}m`;
-  };
 
   const t = sunData.progress;
   const sunX = quadraticBezier(t, 20, 150, 280);

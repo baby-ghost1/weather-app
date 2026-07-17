@@ -14,7 +14,7 @@ const HourlyForecast = ({ hourly }) => {
       <h3 className="text-white/50 text-xs font-medium mb-4 uppercase tracking-wider">Hourly Forecast</h3>
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {upcoming.map((h, i) => (
-          <div key={i} className={`glass shrink-0 rounded-2xl p-3 min-w-[85px] flex flex-col items-center gap-1.5 hover-lift cursor-default ${isNow(h.dtTxt) ? "ring-1 ring-white/30 bg-white/[0.06]" : ""}`}>
+          <div key={h.dtTxt} className={`glass shrink-0 rounded-2xl p-3 min-w-[85px] flex flex-col items-center gap-1.5 hover-lift cursor-default ${isNow(h.dtTxt) ? "ring-1 ring-white/30 bg-white/[0.06]" : ""}`}>
             <p className={`text-[11px] font-medium ${isNow(h.dtTxt) ? "text-white" : "text-white/60"}`}>{i === 0 ? "Now" : formatHour(h.dtTxt)}</p>
             <WeatherIcon main={h.weather} />
             <p className="text-white text-sm font-medium">{Math.round(h.temp)}{tempUnit}</p>

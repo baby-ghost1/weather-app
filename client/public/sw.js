@@ -11,7 +11,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.reduce((acc, k) => k !== CACHE_NAME ? [...acc, caches.delete(k)] : acc, []))
     )
   );
   self.clients.claim();

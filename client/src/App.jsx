@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { UnitProvider } from "./context/UnitContext";
 import WeatherBackground from "./components/WeatherBackground";
 import WeatherParticles from "./components/WeatherParticles";
@@ -12,7 +12,7 @@ import AirQualityCard from "./components/AirQualityCard";
 import AQIForecast from "./components/AQIForecast";
 import UVIndexCard from "./components/UVIndexCard";
 import WindCompass from "./components/WindCompass";
-import WeatherCharts from "./components/WeatherCharts";
+const WeatherCharts = React.lazy(() => import("./components/WeatherCharts"));
 import WeatherMap from "./components/WeatherMap";
 import MoonPhase from "./components/MoonPhase";
 import SunPosition from "./components/SunPosition";
@@ -196,7 +196,11 @@ const WeatherApp = () => {
 
             {forecast.daily?.length > 0 && <DailyForecast daily={forecast.daily} />}
 
-            {forecast.hourly?.length > 0 && <WeatherCharts hourly={forecast.hourly} />}
+            {forecast.hourly?.length > 0 && (
+              <Suspense fallback={<div className="w-full glass rounded-2xl p-5 h-52 flex items-center justify-center"><span className="text-white/40 text-xs">Loading charts...</span></div>}>
+                <WeatherCharts hourly={forecast.hourly} />
+              </Suspense>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <AirQualityCard lat={weather.lat} lon={weather.lon} />

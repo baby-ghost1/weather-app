@@ -3,6 +3,19 @@ import { FiBook, FiPlus, FiTrash2, FiSun, FiCloud } from "react-icons/fi";
 import { WiDaySunny, WiRain, WiDayRain, WiFog, WiThunderstorm } from "react-icons/wi";
 import { TbSnowflake } from "react-icons/tb";
 
+const moodIconMap = {
+  Clear: <WiDaySunny size={20} className="text-white" />,
+  Clouds: <FiCloud size={16} className="text-white" />,
+  Rain: <WiRain size={20} className="text-white" />,
+  Snow: <TbSnowflake size={18} className="text-white" />,
+  Thunderstorm: <WiThunderstorm size={20} className="text-white" />,
+  Drizzle: <WiDayRain size={20} className="text-white" />,
+  Haze: <WiFog size={20} className="text-white" />,
+  Mist: <WiFog size={20} className="text-white" />,
+};
+
+const getMoodIcon = (main) => moodIconMap[main] || <FiSun size={16} className="text-white" />;
+
 const WeatherJournal = ({ weather }) => {
   const [entries, setEntries] = useState([]);
   const [note, setNote] = useState("");
@@ -37,20 +50,6 @@ const WeatherJournal = ({ weather }) => {
 
   const deleteEntry = (id) => {
     saveEntries(entries.filter((e) => e.id !== id));
-  };
-
-  const getMoodIcon = (main) => {
-    const map = {
-      Clear: <WiDaySunny size={20} className="text-white" />,
-      Clouds: <FiCloud size={16} className="text-white" />,
-      Rain: <WiRain size={20} className="text-white" />,
-      Snow: <TbSnowflake size={18} className="text-white" />,
-      Thunderstorm: <WiThunderstorm size={20} className="text-white" />,
-      Drizzle: <WiDayRain size={20} className="text-white" />,
-      Haze: <WiFog size={20} className="text-white" />,
-      Mist: <WiFog size={20} className="text-white" />,
-    };
-    return map[main] || <FiSun size={16} className="text-white" />;
   };
 
   return (

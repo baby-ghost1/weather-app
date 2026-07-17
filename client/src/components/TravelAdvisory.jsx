@@ -67,8 +67,8 @@ const TravelAdvisory = ({ weather }) => {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke={color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-white text-xl font-bold leading-none">{score}</span>
@@ -85,7 +85,7 @@ const TravelAdvisory = ({ weather }) => {
 
       <div className="space-y-1.5 mb-4">
         {tips.map((tip, i) => (
-          <div key={i} className={`flex items-center gap-2 px-2.5 py-2 rounded-lg ${tip.good ? "bg-green-400/10" : "bg-orange-400/10"}`}>
+          <div key={tip.text} className={`flex items-center gap-2 px-2.5 py-2 rounded-lg ${tip.good ? "bg-green-400/10" : "bg-orange-400/10"}`}>
             {tip.good ? (
               <FiCheck className="text-green-300 text-xs shrink-0" />
             ) : (

@@ -49,7 +49,7 @@ const WeatherStories = ({ weather }) => {
 
       <div className="flex justify-center gap-1 mt-3">
         {weatherFacts.map((_, i) => (
-          <button key={i} onClick={() => setIndex(i)} aria-label={`Go to fact ${i + 1}`} className={`w-1 h-1 rounded-full transition-all ${i === index ? "bg-white w-3" : "bg-white/20"}`} />
+          <button key={weatherFacts[i].title} onClick={() => setIndex(i)} aria-label={`Go to fact ${i + 1}`} className={`w-1 h-1 rounded-full transition-all ${i === index ? "bg-white w-3" : "bg-white/20"}`} />
         ))}
       </div>
     </div>

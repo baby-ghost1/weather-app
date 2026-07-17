@@ -56,8 +56,8 @@ const HealthIndex = ({ weather }) => {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={category.color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke={category.color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-white text-xl font-bold leading-none">{score}</span>
@@ -97,15 +97,18 @@ const HealthIndex = ({ weather }) => {
 
       {/* factor contributions */}
       <div className="flex flex-wrap gap-1.5">
-        {factors.filter((f) => f.impact !== 0).map((f) => (
-          <div key={f.label} className="flex items-center gap-1 px-2 py-1 rounded bg-white/[0.04]">
-            <span className={`text-[10px] font-bold ${f.impact > 0 ? "text-green-400" : "text-orange-400"}`}>
-              {f.impact > 0 ? "+" : ""}{f.impact}
-            </span>
-            <span className="text-white/40 text-[10px]">{f.label}</span>
-          </div>
-        ))}
-        {factors.filter((f) => f.impact !== 0).length === 0 && (
+        {factors.reduce((acc, f) => {
+          if (f.impact !== 0) acc.push(
+            <div key={f.label} className="flex items-center gap-1 px-2 py-1 rounded bg-white/[0.04]">
+              <span className={`text-[10px] font-bold ${f.impact > 0 ? "text-green-400" : "text-orange-400"}`}>
+                {f.impact > 0 ? "+" : ""}{f.impact}
+              </span>
+              <span className="text-white/40 text-[10px]">{f.label}</span>
+            </div>
+          );
+          return acc;
+        }, [])}
+        {factors.reduce((acc, f) => f.impact !== 0 ? acc + 1 : acc, 0) === 0 && (
           <div className="flex items-center gap-1 px-2 py-1 rounded bg-green-400/[0.06]">
             <span className="text-green-400 text-[10px] font-medium">All factors positive</span>
           </div>

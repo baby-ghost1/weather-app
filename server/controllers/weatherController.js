@@ -56,7 +56,7 @@ export const fetchWeatherByCity = async (city, units = "metric") => {
   const response = await fetchWithRetry(url);
   if (!response.ok) return { success: false, message: "Error fetching weather" };
   const data = await response.json();
-  const stateName = await getStateName(data.coord.lat, data.coord.lon);
+  const [stateName] = await Promise.all([getStateName(data.coord.lat, data.coord.lon)]);
   return { success: true, data: formatWeatherData(data, stateName) };
 };
 
@@ -65,7 +65,7 @@ export const fetchWeatherByCoords = async (lat, lon, units = "metric") => {
   const response = await fetchWithRetry(url);
   if (!response.ok) return { success: false, message: "Error fetching weather" };
   const data = await response.json();
-  const stateName = await getStateName(lat, lon);
+  const [stateName] = await Promise.all([getStateName(lat, lon)]);
   return { success: true, data: formatWeatherData(data, stateName) };
 };
 

@@ -76,7 +76,7 @@ const WeatherHistory = ({ weather }) => {
           <h4 className="text-white/50 text-xs font-medium mb-3 uppercase tracking-wider">Recent Weather Lookups</h4>
           <div className="space-y-2">
             {history.map((h, i) => (
-              <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
+              <div key={h.city + h.date} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
                 <div>
                   <p className="text-white text-sm">{h.city}, {h.country}</p>
                   <p className="text-white/30 text-[11px]">{getDayName(h.date)}</p>

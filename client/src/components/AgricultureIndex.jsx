@@ -88,6 +88,8 @@ const getAdvice = (weather) => {
   return tips;
 };
 
+const colorMap = { good: "bg-green-400/10 text-green-300", warning: "bg-orange-400/10 text-orange-300", caution: "bg-yellow-400/10 text-yellow-300", info: "bg-blue-400/10 text-blue-300" };
+
 const AgricultureIndex = ({ weather }) => {
   const data = useMemo(() => {
     if (!weather) return null;
@@ -104,7 +106,6 @@ const AgricultureIndex = ({ weather }) => {
 
   const { score, season, tips, soil, irrigation, sunlight } = data;
   const scoreColor = score >= 70 ? "#4ade80" : score >= 40 ? "#fbbf24" : "#f97316";
-  const colorMap = { good: "bg-green-400/10 text-green-300", warning: "bg-orange-400/10 text-orange-300", caution: "bg-yellow-400/10 text-yellow-300", info: "bg-blue-400/10 text-blue-300" };
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
@@ -122,8 +123,8 @@ const AgricultureIndex = ({ weather }) => {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={scoreColor} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke={scoreColor} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-white text-xl font-bold leading-none">{score}</span>
@@ -177,7 +178,7 @@ const AgricultureIndex = ({ weather }) => {
         {tips.map((tip, i) => {
           const Icon = iconMap[tip.text] || FiCheck;
           return (
-            <div key={i} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg ${colorMap[tip.type]}`}>
+            <div key={tip.text} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg ${colorMap[tip.type]}`}>
               <Icon size={14} />
               <span className="text-[11px]">{tip.text}</span>
             </div>

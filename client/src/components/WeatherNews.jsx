@@ -82,7 +82,7 @@ const WeatherNews = ({ weather, forecast }) => {
 
       <div className="space-y-2">
         {news.map((item, i) => (
-          <div key={i} className={`p-2.5 rounded-lg bg-white/5 border-l-2 ${typeStyles[item.type] || typeStyles.info}`}>
+          <div key={item.title} className={`p-2.5 rounded-lg bg-white/5 border-l-2 ${typeStyles[item.type] || typeStyles.info}`}>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-white/30">{item.icon}</span>
               <span className="text-white/70 text-xs font-medium">{item.title}</span>

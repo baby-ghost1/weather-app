@@ -66,8 +66,8 @@ const FireIndex = ({ weather }) => {
       <div className="flex items-center gap-4 mb-4">
         <div className="relative w-20 h-20 shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={category.color} strokeWidth="2.5" strokeDasharray={`${risk}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.08 a 15.92 15.92 0 0 1 0 31.83 a 15.92 15.92 0 0 1 0 -31.83" fill="none" stroke={category.color} strokeWidth="2.5" strokeDasharray={`${risk}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             {risk > 40 ? <FiAlertTriangle className="text-xs mb-0.5" style={{ color: category.color }} /> : <FiCheck className="text-xs mb-0.5" style={{ color: category.color }} />}
@@ -112,7 +112,7 @@ const FireIndex = ({ weather }) => {
             <span className="text-white/30 text-[10px] uppercase tracking-wider">Safety Checklist</span>
           </div>
           {checklist.map((item, i) => (
-            <div key={i} className="flex items-center gap-2 px-2 py-1 rounded bg-white/[0.03]">
+            <div key={item} className="flex items-center gap-2 px-2 py-1 rounded bg-white/[0.03]">
               <div className="w-1 h-1 rounded-full" style={{ backgroundColor: category.color }} />
               <span className="text-white/40 text-[11px]">{item}</span>
             </div>
