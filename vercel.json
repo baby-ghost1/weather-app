@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://weatherflow-zy9q.onrender.com"
+      "destination": "https://weatherflow-zy9q.onrender.com/api/:path*"
     }
   ],
   "headers": [
