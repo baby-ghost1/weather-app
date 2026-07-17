@@ -3,10 +3,10 @@ import { useUnit } from "../context/UnitContext";
 import { formatTime, getWindDirection } from "../utils/format";
 
 const DetailItem = ({ icon, label, value, color }) => (
-  <div className="glass rounded-2xl p-4 flex flex-col items-center justify-center gap-1 hover-lift animate-scale-in">
-    <div className={`text-3xl ${color}`}>{icon}</div>
+  <div className="glass rounded-2xl p-4 flex flex-col items-center justify-center gap-1.5 hover-lift animate-scale-in group">
+    <div className={`text-3xl ${color} group-hover:scale-110 transition-transform`}>{icon}</div>
     <p className="text-white text-lg font-medium">{value}</p>
-    <p className="text-white/50 text-xs">{label}</p>
+    <p className="text-white/50 text-[11px]">{label}</p>
   </div>
 );
 

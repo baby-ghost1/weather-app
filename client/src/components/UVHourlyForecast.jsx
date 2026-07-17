@@ -33,29 +33,47 @@ const UVHourlyForecast = ({ weather }) => {
 
   const { current, hours } = data;
   const currentUV = getUVLevel(current);
+  const score = Math.max(0, Math.min(100, Math.round(100 - current * 10)));
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
-      <div className="flex items-center justify-between mb-3">
+      {/* header */}
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider flex items-center gap-2">
           <FiSun className="text-white" /> UV Index Hourly
         </h3>
         <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg text-black" style={{ backgroundColor: currentUV.color }}>{currentUV.label}</span>
       </div>
 
-      <div className="flex items-center gap-3 mb-3">
-        <span className="text-3xl"><FiSun className="text-white" /></span>
-        <div>
-          <p className="text-white text-2xl font-medium">{current}</p>
-          <p className="text-white/40 text-xs">{currentUV.advice}</p>
+      {/* ring + advice */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative w-20 h-20 shrink-0">
+          <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={currentUV.color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <FiSun className="text-xs mb-0.5" style={{ color: currentUV.color }} />
+            <span className="text-white text-xl font-bold leading-none">{current}</span>
+            <span className="text-white/30 text-[8px]">UV</span>
+          </div>
         </div>
+        <p className="text-white/40 text-[11px] leading-relaxed">{currentUV.advice}</p>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      {/* glow badge for current UV */}
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: `${currentUV.color}12`, boxShadow: `0 0 20px ${currentUV.color}15` }}>
+        <FiSun className="text-sm shrink-0" style={{ color: currentUV.color }} />
+        <span className="text-[11px] font-medium" style={{ color: currentUV.color }}>Current UV: {current}</span>
+        <span className="text-white/40 text-[11px] ml-auto">{currentUV.label}</span>
+      </div>
+
+      {/* hourly bars */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
         {hours.map((h, i) => (
-          <div key={i} className="flex flex-col items-center min-w-[40px] p-1.5 rounded-lg bg-white/5">
-            <span className="text-[11px] text-white/30">{String(h.hour).padStart(2, "0")}:00</span>
-            <div className="w-full h-1 rounded-full my-1" style={{ backgroundColor: h.color }} />
+          <div key={i} className="flex flex-col items-center min-w-[42px] flex-1 p-2 rounded-lg bg-white/5">
+            <span className="text-[10px] text-white/30 mb-1">{String(h.hour).padStart(2, "0")}:00</span>
+            <div className="w-full rounded-full mb-1.5 transition-all duration-500" style={{ height: `${Math.max(h.uv * 5, 4)}px`, backgroundColor: h.color, boxShadow: `0 0 6px ${h.color}30` }} />
             <span className="text-[11px] font-medium" style={{ color: h.color }}>{h.uv}</span>
           </div>
         ))}

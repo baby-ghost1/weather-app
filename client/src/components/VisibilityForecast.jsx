@@ -26,32 +26,45 @@ const VisibilityForecast = ({ weather }) => {
   if (!weather) return null;
 
   const vis = getVisibilityInfo(weather.visibility);
+  const score = Math.min(Math.round((vis.km / 15) * 100), 100);
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
-      <div className="flex items-center justify-between mb-3">
+      {/* header */}
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider flex items-center gap-2">
           <FiEye className="text-white" /> Visibility
         </h3>
         <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg text-black" style={{ backgroundColor: vis.color }}>{vis.status}</span>
       </div>
 
-      <div className="flex items-center gap-3 mb-3">
-        <span className="text-3xl"><FiEye className="text-white" /></span>
-        <div>
-          <p className="text-white text-2xl font-medium">{vis.km} km</p>
-          <p className="text-white/40 text-xs">{vis.advice}</p>
+      {/* ring + advice */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative w-20 h-20 shrink-0">
+          <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={vis.color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <FiEye className="text-xs mb-0.5" style={{ color: vis.color }} />
+            <span className="text-white text-xl font-bold leading-none">{vis.km}</span>
+            <span className="text-white/30 text-[8px]">km</span>
+          </div>
         </div>
+        <p className="text-white/40 text-[11px] leading-relaxed">{vis.advice}</p>
       </div>
 
-      <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-2">
+      {/* visibility bar */}
+      <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-3">
         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min((vis.km / 15) * 100, 100)}%`, backgroundColor: vis.color }} />
       </div>
 
+      {/* fog risk badge */}
       {vis.fogRisk && (
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-yellow-400/10 border border-yellow-400/20">
-          <span className="text-sm"><WiFog className="text-white" /></span>
-          <span className="text-yellow-300 text-[11px]">Fog risk: High humidity + cool temperature</span>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-400/10 border border-yellow-400/20">
+          <WiFog className="text-yellow-300 text-base shrink-0" />
+          <span className="text-yellow-300 text-[11px] font-medium">Fog Risk</span>
+          <span className="text-yellow-200/60 text-[11px] ml-auto">High humidity + cool temperature</span>
         </div>
       )}
     </div>

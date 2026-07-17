@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiAlertTriangle, FiExternalLink } from "react-icons/fi";
+import { FiAlertTriangle, FiExternalLink, FiActivity } from "react-icons/fi";
 
 const EarthquakeAlerts = ({ lat, lon }) => {
   const [earthquakes, setEarthquakes] = useState([]);
@@ -32,16 +32,21 @@ const EarthquakeAlerts = ({ lat, lon }) => {
   if (loading) return <div className="glass rounded-2xl p-5 animate-scale-in"><div className="shimmer h-4 w-40 rounded mb-3" /><div className="shimmer h-12 w-full rounded mb-2" /><div className="shimmer h-12 w-full rounded" /></div>;
   if (earthquakes.length === 0) return null;
 
-  const colorMap = { major: "text-red-400", moderate: "text-orange-400", minor: "text-yellow-300" };
+  const colorMap = { major: "#ef4444", moderate: "#f97316", minor: "#facc15" };
   const borderMap = { major: "border-red-400/30", moderate: "border-orange-400/30", minor: "border-yellow-400/20" };
+  const bgMap = { major: "bg-red-400/[0.06]", moderate: "bg-orange-400/[0.06]", minor: "bg-yellow-400/[0.06]" };
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider">Earthquake Activity (1000km)</h3>
-        <span className="text-white/30 text-[11px]">{earthquakes.length} recent</span>
+      {/* header */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider flex items-center gap-2">
+          <FiActivity className="text-white" /> Earthquake Activity
+        </h3>
+        <span className="text-white/30 text-[11px]">{earthquakes.length} recent · 1000km</span>
       </div>
 
+      {/* list */}
       <div className="space-y-2">
         {earthquakes.slice(0, 5).map((eq) => (
           <a
@@ -49,10 +54,10 @@ const EarthquakeAlerts = ({ lat, lon }) => {
             href={eq.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center gap-3 p-2.5 rounded-xl border ${borderMap[eq.severity]} bg-white/5 hover:bg-white/10 transition-colors`}
+            className={`flex items-center gap-3 p-3 rounded-xl border ${borderMap[eq.severity]} ${bgMap[eq.severity]} hover:bg-white/[0.08] transition-colors`}
           >
-            <div className={`text-xl font-bold ${colorMap[eq.severity]}`}>
-              {eq.mag.toFixed(1)}
+            <div className="relative w-10 h-10 shrink-0 flex items-center justify-center rounded-lg" style={{ backgroundColor: `${colorMap[eq.severity]}15` }}>
+              <span className="text-lg font-bold" style={{ color: colorMap[eq.severity] }}>{eq.mag.toFixed(1)}</span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white/80 text-xs truncate">{eq.place}</p>
@@ -60,6 +65,9 @@ const EarthquakeAlerts = ({ lat, lon }) => {
                 {new Date(eq.time).toLocaleDateString("en-US", { month: "short", day: "numeric" })} · {new Date(eq.time).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
               </p>
             </div>
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full capitalize" style={{ backgroundColor: `${colorMap[eq.severity]}20`, color: colorMap[eq.severity] }}>
+              {eq.severity}
+            </span>
             <FiExternalLink className="text-white/20 text-xs shrink-0" />
           </a>
         ))}

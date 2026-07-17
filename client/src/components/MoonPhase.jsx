@@ -49,29 +49,46 @@ const MoonPhase = () => {
     const nextFull = getNextFullMoon(phase);
     const age = Math.round(phase * 29.53);
 
-    return { ...currentPhase, illumination, nextFull, age };
+    return { ...currentPhase, illumination, nextFull, age, phase };
   }, []);
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
-      <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider mb-3">Moon Phase</h3>
+      {/* header */}
+      <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider mb-4">Moon Phase</h3>
 
-      <div className="flex items-center gap-4">
-        <div className="text-5xl">{moonData.emoji}</div>
+      {/* emoji + ring */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative w-20 h-20 shrink-0">
+          <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#c4b5fd" strokeWidth="2.5" strokeDasharray={`${moonData.illumination}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center text-3xl">{moonData.emoji}</div>
+        </div>
         <div>
           <p className="text-white text-lg font-medium">{moonData.name}</p>
           <p className="text-white/40 text-xs">{moonData.illumination}% illuminated</p>
         </div>
       </div>
 
-      <div className="mt-4 space-y-2">
-        <div className="flex justify-between text-xs">
-          <span className="text-white/30">Moon Age</span>
-          <span className="text-white/60">{moonData.age} days</span>
+      {/* phase cycle bar */}
+      <div className="mb-4">
+        <div className="relative w-full h-2 rounded-full bg-white/10 overflow-hidden">
+          <div className="absolute h-full rounded-full bg-gradient-to-r from-slate-700 via-purple-400 to-slate-700 transition-all" style={{ width: `${moonData.phase * 100}%` }} />
+          <div className="absolute w-2.5 h-2.5 bg-white rounded-full shadow -mt-[3px] transition-all" style={{ left: `calc(${moonData.phase * 100}% - 5px)` }} />
         </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-white/30">Next Full Moon</span>
-          <span className="text-white/60">{moonData.nextFull}</span>
+      </div>
+
+      {/* details */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="glass rounded-lg p-2.5 text-center">
+          <p className="text-white text-sm font-medium">{moonData.age} days</p>
+          <p className="text-white/30 text-[10px]">Moon Age</p>
+        </div>
+        <div className="glass rounded-lg p-2.5 text-center">
+          <p className="text-white text-sm font-medium">{moonData.nextFull}</p>
+          <p className="text-white/30 text-[10px]">Next Full Moon</p>
         </div>
       </div>
     </div>

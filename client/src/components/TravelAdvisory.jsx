@@ -35,6 +35,9 @@ const getTravelAdvice = (score, main, temp) => {
   return tips;
 };
 
+const scoreColor = (s) => s >= 80 ? "#00e400" : s >= 60 ? "#ffff00" : s >= 40 ? "#ff7e00" : "#ff0000";
+const scoreLabel = (s) => s >= 80 ? "Excellent" : s >= 60 ? "Good" : s >= 40 ? "Fair" : "Poor";
+
 const TravelAdvisory = ({ weather }) => {
   const data = useMemo(() => {
     if (!weather) return null;
@@ -47,45 +50,60 @@ const TravelAdvisory = ({ weather }) => {
   if (!data) return null;
 
   const { score, tips } = data;
-  const color = score >= 80 ? "#00e400" : score >= 60 ? "#ffff00" : score >= 40 ? "#ff7e00" : "#ff0000";
-  const label = score >= 80 ? "Excellent" : score >= 60 ? "Good" : score >= 40 ? "Fair" : "Poor";
+  const color = scoreColor(score);
+  const label = scoreLabel(score);
 
   return (
     <div className="glass rounded-2xl p-5 hover-lift animate-scale-in">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-white/50 text-xs font-medium uppercase tracking-wider flex items-center gap-2">
           <FiMapPin className="text-white" /> Travel Advisory
         </h3>
         <span className="text-xs font-bold px-2.5 py-1.5 rounded-lg text-black" style={{ backgroundColor: color }}>
-          {label} ({score}/100)
+          {label}
         </span>
       </div>
 
-      <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-4">
-        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${score}%`, backgroundColor: color }} />
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative w-20 h-20 shrink-0">
+          <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={color} strokeWidth="2.5" strokeDasharray={`${score}, 100`} strokeLinecap="round" className="transition-all duration-1000" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-white text-xl font-bold leading-none">{score}</span>
+            <span className="text-white/30 text-[9px] mt-0.5">/100</span>
+          </div>
+        </div>
+        <div>
+          <p className="text-white text-sm font-medium">{label} for travel</p>
+          <p className="text-white/40 text-[11px] leading-relaxed mt-0.5">
+            {weather.temp}°C, {weather.humidity}% humidity
+          </p>
+        </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5 mb-4">
         {tips.map((tip, i) => (
-          <div key={i} className="flex items-center gap-2">
+          <div key={i} className={`flex items-center gap-2 px-2.5 py-2 rounded-lg ${tip.good ? "bg-green-400/10" : "bg-orange-400/10"}`}>
             {tip.good ? (
-              <FiCheck className="text-green-400 text-xs shrink-0" />
+              <FiCheck className="text-green-300 text-xs shrink-0" />
             ) : (
-              <FiX className="text-orange-400 text-xs shrink-0" />
+              <FiX className="text-orange-300 text-xs shrink-0" />
             )}
-            <span className="text-white/60 text-xs">{tip.text}</span>
+            <span className={`text-xs ${tip.good ? "text-green-300" : "text-orange-300"}`}>{tip.text}</span>
           </div>
         ))}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <div className="glass rounded-lg p-2 text-center">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white/[0.04] rounded-lg p-2.5 text-center">
           <p className="text-white text-sm font-medium">{weather.temp}°</p>
-          <p className="text-white/30 text-[11px]">Temperature</p>
+          <p className="text-white/30 text-[10px]">Temperature</p>
         </div>
-        <div className="glass rounded-lg p-2 text-center">
+        <div className="bg-white/[0.04] rounded-lg p-2.5 text-center">
           <p className="text-white text-sm font-medium">{weather.humidity}%</p>
-          <p className="text-white/30 text-[11px]">Humidity</p>
+          <p className="text-white/30 text-[10px]">Humidity</p>
         </div>
       </div>
     </div>
