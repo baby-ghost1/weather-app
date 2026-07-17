@@ -6,6 +6,7 @@
     "server": "cd server && node server.js",
     "client": "cd client && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "cd client && npm install && npm run build",
     "install-all": "npm install && cd server && npm install && cd ../client && npm install",
     "doctor": "npx react-doctor@latest",
     "test": "npx playwright test",
